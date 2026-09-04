@@ -20,19 +20,13 @@ export const env = {
     .filter(Boolean),
   jwtSecret: required("JWT_SECRET", "development-only-secret-change-me"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "7d",
-  resendApiKey: process.env.RESEND_API_KEY,
-  emailFrom: process.env.EMAIL_FROM ?? 'Africlana <noreply@africlana.com>',
-  smtpHost: process.env.SMTP_HOST,
-  smtpPort: Number(process.env.SMTP_PORT ?? 587),
-  smtpSecure: process.env.SMTP_SECURE === 'true',
-  smtpUser: process.env.SMTP_USER,
-  smtpPassword: process.env.SMTP_PASSWORD,
-  firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
-  firebaseClientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
-  paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY,
-
+  ridePriceKobo: Number(process.env.RIDE_PRICE_KOBO ?? 25_000),
+  scanPinRequired: (process.env.SCAN_PIN_REQUIRED ?? "true") !== "false",
+  seedAdminEmail: process.env.SEED_ADMIN_EMAIL ?? "admin@hyperion.local",
+  seedAdminPassword: process.env.SEED_ADMIN_PASSWORD ?? "ChangeMeAdmin1!",
+  seedAdminName: process.env.SEED_ADMIN_NAME ?? "Hyperion Admin",
+  paystackSecretKey: process.env.PAYSTACK_SECRET_KEY ?? "",
+  paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY ?? "",
 };
 
-export const isProduction = env.nodeEnv === 'production';
+export const isProduction = env.nodeEnv === "production";
