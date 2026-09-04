@@ -32,6 +32,17 @@ const userSchema = new Schema(
 );
 
 userSchema.index({ role: 1, isActive: 1 });
+userSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret: Record<string, unknown>) => {
+    ret.id = String(ret._id);
+    delete ret.passwordHash;
+    delete ret.pinHash;
+    delete ret.qrToken;
+    return ret;
+  },
+});
 
 export type UserDocument = InferSchemaType<typeof userSchema> & { _id: Schema.Types.ObjectId };
 

@@ -18,8 +18,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: env.clientOrigins.length ? env.clientOrigins : true,
-    credentials: true,
+    origin: "*",
   }),
 );
 
