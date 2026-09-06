@@ -30,7 +30,7 @@ export function Guard({
 
   if (loading || !user || !roles.includes(user.role)) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-app text-zinc-400">
+      <div className="flex min-h-screen items-center justify-center bg-app text-slate-500">
         Loading…
       </div>
     );

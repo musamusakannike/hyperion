@@ -53,7 +53,7 @@ function Inner() {
     <AppShell tabs={adminTabs} title="People">
       <div className="col-span-12 space-y-4 lg:col-span-4">
         <Card className="p-5">
-          <h3 className="font-semibold">New student</h3>
+          <h3 className="font-semibold text-slate-900">New student</h3>
           <form className="mt-3 space-y-3" onSubmit={createStudent}>
             <Field id="sf" label="Name" value={student.fullName} onChange={(e) => setStudent({ ...student, fullName: e.target.value })} />
             <Field id="se" label="Email" value={student.email} onChange={(e) => setStudent({ ...student, email: e.target.value })} />
@@ -63,7 +63,7 @@ function Inner() {
           </form>
         </Card>
         <Card className="p-5">
-          <h3 className="font-semibold">New driver</h3>
+          <h3 className="font-semibold text-slate-900">New driver</h3>
           <form className="mt-3 space-y-3" onSubmit={createDriver}>
             <Field id="df" label="Name" value={driver.fullName} onChange={(e) => setDriver({ ...driver, fullName: e.target.value })} />
             <Field id="de" label="Email" value={driver.email} onChange={(e) => setDriver({ ...driver, email: e.target.value })} />
@@ -74,8 +74,8 @@ function Inner() {
       </div>
       <div className="col-span-12 lg:col-span-8">
         <Card className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="text-xs uppercase text-zinc-500">
+          <table className="w-full min-w-160 text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Role</th>
@@ -83,29 +83,29 @@ function Inner() {
                 <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {users.map((u) => {
                 const id = u.id || (u as User & { _id?: string })._id || "";
                 return (
                 <tr key={id}>
                   <td className="px-4 py-3">
-                    <p className="font-semibold">{u.fullName}</p>
-                    <p className="text-xs text-zinc-500">{u.email}</p>
+                    <p className="font-semibold text-slate-900">{u.fullName}</p>
+                    <p className="text-xs text-slate-400">{u.email}</p>
                   </td>
-                  <td className="px-4 py-3 capitalize">{u.role}</td>
-                  <td className="px-4 py-3">{u.role === "student" ? u.ridePoints : "—"}</td>
+                  <td className="px-4 py-3 capitalize text-slate-700">{u.role}</td>
+                  <td className="px-4 py-3 font-medium text-slate-900">{u.role === "student" ? u.ridePoints : "—"}</td>
                   <td className="px-4 py-3">
                     {u.role === "student" ? (
                       <div className="flex flex-wrap gap-2">
                         <input
-                          className="w-16 rounded-lg bg-input px-2 py-1"
+                          className="w-16 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none"
                           placeholder="+pts"
                           value={points[id] ?? ""}
                           onChange={(e) => setPoints((p) => ({ ...p, [id]: e.target.value }))}
                         />
                         <button
                           type="button"
-                          className="rounded-lg bg-accent px-2 py-1 text-xs"
+                          className="rounded-lg bg-accent px-2 py-1 text-xs text-white transition hover:bg-accent-hover"
                           onClick={async () => {
                             await api.post(`/api/admin/students/${id}/points`, {
                               deltaPoints: Number(points[id] || 0),
@@ -117,14 +117,14 @@ function Inner() {
                           Add
                         </button>
                         <input
-                          className="w-24 rounded-lg bg-input px-2 py-1"
+                          className="w-24 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none"
                           placeholder="RFID UID"
                           value={rfid[id] ?? ""}
                           onChange={(e) => setRfid((p) => ({ ...p, [id]: e.target.value }))}
                         />
                         <button
                           type="button"
-                          className="rounded-lg bg-white/10 px-2 py-1 text-xs"
+                          className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 text-xs text-slate-700 transition hover:bg-slate-200"
                           onClick={async () => {
                             await api.post(`/api/admin/students/${id}/rfid`, { rfidUid: rfid[id] });
                             await load();
@@ -134,7 +134,7 @@ function Inner() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-zinc-500">—</span>
+                      <span className="text-slate-400">—</span>
                     )}
                   </td>
                 </tr>

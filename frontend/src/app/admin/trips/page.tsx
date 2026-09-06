@@ -16,9 +16,9 @@ function Inner() {
   return (
     <AppShell tabs={adminTabs} title="Trips">
       <div className="col-span-12">
-        <Card className="divide-y divide-zinc-800/60">
+        <Card className="divide-y divide-slate-100">
           {trips.length === 0 ? (
-            <p className="p-8 text-center text-zinc-400">No trips yet.</p>
+            <p className="p-8 text-center text-slate-400">No trips yet.</p>
           ) : (
             trips.map((trip, i) => <RideRow key={trip._id} trip={trip} index={i} perspective="admin" />)
           )}

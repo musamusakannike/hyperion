@@ -77,8 +77,8 @@ function DriverScan() {
     <AppShell tabs={driverTabs} title="Driver">
       <div className="col-span-12 mx-auto w-full max-w-lg space-y-4">
         <Card className="p-5">
-          <h2 className="text-xl font-bold">Scan a ride</h2>
-          <p className="mt-1 text-sm text-zinc-400">Ask for the student PIN, then scan their QR or type an RFID UID.</p>
+          <h2 className="text-xl font-bold text-slate-900">Scan a ride</h2>
+          <p className="mt-1 text-sm text-slate-500">Ask for the student PIN, then scan their QR or type an RFID UID.</p>
           <div className="mt-4 space-y-3">
             <Field id="pin" label="Student PIN" value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" />
             <div className="flex gap-2">
@@ -87,7 +87,7 @@ function DriverScan() {
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
-                  className={`flex-1 rounded-xl py-2 text-sm font-semibold ${method === m ? "bg-accent" : "bg-white/5"}`}
+                  className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${method === m ? "bg-accent text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
                 >
                   {m.toUpperCase()}
                 </button>
@@ -107,7 +107,7 @@ function DriverScan() {
             <button
               type="button"
               onClick={() => setCamOn((v) => !v)}
-              className="w-full rounded-xl border border-white/10 py-3 text-sm"
+              className="w-full rounded-xl border border-slate-200 py-3 text-sm text-slate-700 hover:bg-slate-50 transition"
             >
               {camOn ? "Stop camera" : "Open camera"}
             </button>
@@ -115,12 +115,12 @@ function DriverScan() {
           </div>
         </Card>
         {result ? (
-          <Card className={`p-5 ${result.ok ? "border-app-green/40" : "border-app-red/40"}`}>
-            <p className="text-lg font-bold">{result.ok ? "Ride recorded" : "Scan failed"}</p>
-            <p className="mt-1 text-sm text-zinc-300">{result.message}</p>
-            {result.studentName ? <p className="mt-2 font-semibold">{result.studentName}</p> : null}
+          <Card className={`p-5 ${result.ok ? "border-emerald-300 bg-emerald-50/50" : "border-rose-300 bg-rose-50/50"}`}>
+            <p className={`text-lg font-bold ${result.ok ? "text-emerald-900" : "text-rose-900"}`}>{result.ok ? "Ride recorded" : "Scan failed"}</p>
+            <p className="mt-1 text-sm text-slate-700">{result.message}</p>
+            {result.studentName ? <p className="mt-2 font-semibold text-slate-900">{result.studentName}</p> : null}
             {typeof result.remainingPoints === "number" ? (
-              <p className="text-sm text-zinc-400">{result.remainingPoints} pts left</p>
+              <p className="text-sm text-slate-500">{result.remainingPoints} pts left</p>
             ) : null}
           </Card>
         ) : null}

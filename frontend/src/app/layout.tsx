@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} h-full antialiased`}>
-      <body className={`${spaceGrotesk.className} min-h-full flex flex-col bg-app text-white`}>
+      <body className={`${spaceGrotesk.className} min-h-full flex flex-col bg-app text-slate-900`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

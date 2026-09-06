@@ -22,10 +22,10 @@ export function AppShell({
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#070709] text-white">
+    <div className="min-h-screen bg-app text-slate-900">
       <div className="mx-auto flex min-h-screen max-w-6xl">
-        <aside className="sticky top-0 hidden h-screen w-60 flex-col border-r border-white/5 bg-app px-4 py-6 lg:flex">
-          <Link href="/" className="mb-8 px-2 text-lg font-black tracking-tight">
+        <aside className="sticky top-0 hidden h-screen w-60 flex-col border-r border-slate-200 bg-white px-4 py-6 lg:flex">
+          <Link href="/" className="mb-8 px-2 text-lg font-black tracking-tight text-blue-600">
             HYPERION
           </Link>
           <nav className="flex flex-1 flex-col gap-1">
@@ -36,7 +36,7 @@ export function AppShell({
                   key={tab.href}
                   href={tab.href}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                    active ? "bg-[#2d2d3c] text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                    active ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
                   {tab.icon}
@@ -49,7 +49,7 @@ export function AppShell({
             <button
               type="button"
               onClick={logout}
-              className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
+              className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             >
               <FiLogOut />
               Sign out
@@ -63,16 +63,16 @@ export function AppShell({
               <div className="flex items-center gap-3">
                 {user ? <Avatar name={user.fullName} size="sm" /> : null}
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                     {title ?? "Hyperion"}
                   </p>
-                  <p className="text-sm font-semibold">{user?.fullName ?? "Guest"}</p>
+                  <p className="text-sm font-semibold text-slate-900">{user?.fullName ?? "Guest"}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={logout}
-                className="rounded-xl bg-[#191a24] px-3 py-2 text-xs font-semibold text-zinc-300 hover:bg-[#232332] lg:hidden"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 lg:hidden"
               >
                 Sign out
               </button>
@@ -82,7 +82,7 @@ export function AppShell({
         </div>
       </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800/80 bg-[#13131a]/95 px-3 py-2 backdrop-blur-md lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 px-3 py-2 backdrop-blur-md lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-around">
           {tabs.map((tab) => {
             const active = pathname === tab.href;
@@ -90,12 +90,12 @@ export function AppShell({
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="flex flex-1 flex-col items-center justify-center py-1 text-zinc-400"
+                className="flex flex-1 flex-col items-center justify-center py-1 text-slate-500"
               >
-                <div className={active ? "rounded-full bg-[#2d2d3c] px-4 py-1.5 text-white" : "p-1.5"}>
+                <div className={active ? "rounded-full bg-blue-600 px-4 py-1.5 text-white" : "p-1.5 text-slate-500"}>
                   {tab.icon}
                 </div>
-                <span className={`mt-1 text-[11px] ${active ? "font-semibold text-white" : "font-medium"}`}>
+                <span className={`mt-1 text-[11px] ${active ? "font-semibold text-blue-600" : "font-medium text-slate-500"}`}>
                   {tab.label}
                 </span>
               </Link>

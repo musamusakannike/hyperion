@@ -23,14 +23,14 @@ function Inner() {
       <div className="col-span-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map(([label, value]) => (
           <Card key={label} className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
-            <p className="mt-2 text-3xl font-extrabold">{value}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+            <p className="mt-2 text-3xl font-extrabold text-slate-900">{value}</p>
           </Card>
         ))}
       </div>
-      <div className="col-span-12 mt-4 rounded-2xl bg-[#d5bef6] p-5 text-black">
-        <h3 className="font-bold">Exhibition booth</h3>
-        <p className="mt-1 text-sm text-zinc-800">
+      <div className="col-span-12 mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-5 text-blue-950 shadow-sm">
+        <h3 className="font-bold text-blue-900">Exhibition booth</h3>
+        <p className="mt-1 text-sm text-blue-800/80">
           Seed a student with points, open the student QR on one phone, scan it from the driver account on another.
         </p>
       </div>

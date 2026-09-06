@@ -36,7 +36,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-app text-white">
+    <div className="flex min-h-screen flex-col bg-app text-slate-900">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-10 pt-10 lg:max-w-lg">
         <h1 className="text-2xl font-black uppercase tracking-tight">Create account</h1>
         <p className="mt-2 text-sm text-muted">Students only. Drivers and admins are created by Hyperion staff.</p>
@@ -53,7 +53,7 @@ export default function RegisterPage() {
         </form>
         <p className="mt-6 text-center text-sm text-muted">
           Already have an account?
-          <Link href="/login" className="ml-1 font-medium text-accent-hi hover:underline">
+          <Link href="/login" className="ml-1 font-medium text-blue-600 hover:underline">
             Sign in
           </Link>
         </p>

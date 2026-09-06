@@ -29,7 +29,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-app text-white">
+    <div className="flex min-h-screen flex-col bg-app text-slate-900">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-6 pb-8 pt-10 lg:max-w-lg">
         <main className="flex flex-1 flex-col justify-center py-4">
           <section className="mb-8 mt-2 flex flex-col items-center text-center">
@@ -60,7 +60,7 @@ export default function LoginPage() {
               required
               icon={<FiLock className="h-5 w-5" />}
               trailing={
-                <button type="button" className="text-muted hover:text-gray-300" onClick={() => setShow((s) => !s)}>
+                <button type="button" className="text-muted hover:text-slate-700" onClick={() => setShow((s) => !s)}>
                   {show ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
                 </button>
               }
@@ -75,7 +75,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-xs text-muted sm:text-sm">
             Don&apos;t have an account?
-            <Link href="/register" className="ml-1 font-medium text-accent-hi hover:underline">
+            <Link href="/register" className="ml-1 font-medium text-blue-600 hover:underline">
               Sign up
             </Link>
           </p>

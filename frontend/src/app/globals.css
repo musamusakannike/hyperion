@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-app: #0e0e11;
-  --color-card: #1a1a22;
-  --color-card-hover: #23232e;
-  --color-accent: #592e85;
-  --color-accent-hover: #6a389f;
-  --color-accent-hi: #a855f7;
-  --color-app-purple: #9d5bf0;
-  --color-app-banner: #d8c2fa;
-  --color-app-green: #23c55e;
-  --color-app-red: #ff5c5c;
-  --color-muted: #8e8ea0;
-  --color-input: #212028;
-  --color-input-border: #35343f;
+  --color-app: #ffffff;
+  --color-card: #ffffff;
+  --color-card-hover: #f1f5f9;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-hi: #3b82f6;
+  --color-app-purple: #2563eb;
+  --color-app-banner: #dbeafe;
+  --color-app-green: #16a34a;
+  --color-app-red: #dc2626;
+  --color-muted: #64748b;
+  --color-input: #ffffff;
+  --color-input-border: #cbd5e1;
   --font-sans: var(--font-space-grotesk);
 }
 
 html,
 body {
-  background: #070709;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0f172a;
   font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

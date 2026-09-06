@@ -14,7 +14,7 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-gray-200" htmlFor={props.id}>
+      <label className="block text-sm font-medium text-slate-700" htmlFor={props.id}>
         {label}
       </label>
       <div className="relative flex items-center">
@@ -25,7 +25,7 @@ export function Field({
         ) : null}
         <input
           {...props}
-          className={`w-full rounded-xl border border-input-border bg-input py-3.5 text-sm text-white placeholder:text-[#63626e] transition duration-150 focus:border-accent-hi focus:outline-none focus:ring-1 focus:ring-accent-hi ${icon ? "pl-11" : "pl-4"} ${trailing ? "pr-11" : "pr-4"}`}
+          className={`w-full rounded-xl border border-input-border bg-input py-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition duration-150 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent ${icon ? "pl-11" : "pl-4"} ${trailing ? "pr-11" : "pr-4"}`}
         />
         {trailing ? (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3.5">{trailing}</div>
@@ -43,7 +43,7 @@ export function PrimaryButton({
   return (
     <button
       {...props}
-      className={`w-full cursor-pointer rounded-xl bg-accent py-3.5 text-sm font-semibold text-white shadow-lg transition duration-150 hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base ${className}`}
+      className={`w-full cursor-pointer rounded-xl bg-accent py-3.5 text-sm font-semibold text-white shadow-md transition duration-150 hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base ${className}`}
     >
       {children}
     </button>
@@ -52,7 +52,7 @@ export function PrimaryButton({
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-white/5 bg-card shadow-sm ${className}`}>{children}</div>
+    <div className={`rounded-2xl border border-slate-200/80 bg-card shadow-sm ${className}`}>{children}</div>
   );
 }
 
@@ -60,9 +60,9 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
   const initial = name.trim().charAt(0).toUpperCase() || "H";
   const dim = size === "lg" ? "h-24 w-24 text-3xl" : size === "sm" ? "h-11 w-11 text-base" : "h-12 w-12 text-lg";
   return (
-    <div className={`relative flex-shrink-0 rounded-full bg-gradient-to-tr from-amber-600 via-rose-500 to-indigo-500 p-[2px] ${size === "lg" ? "p-[3px]" : ""}`}>
+    <div className={`relative shrink-0 rounded-full bg-linear-to-tr from-blue-600 via-sky-500 to-indigo-600 p-0.5 ${size === "lg" ? "p-0.75" : ""}`}>
       <div
-        className={`${dim} flex items-center justify-center overflow-hidden rounded-full border border-black bg-[#2a2430] font-bold text-white`}
+        className={`${dim} flex items-center justify-center overflow-hidden rounded-full border border-blue-200 bg-blue-50 font-bold text-blue-700`}
       >
         {initial}
       </div>
@@ -72,11 +72,11 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
 
 export function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
   return ok ? (
-    <span className="mt-1 inline-block rounded-full bg-[#133020] px-2 py-0.5 text-[10px] font-semibold text-[#2fe882]">
+    <span className="mt-1 inline-block rounded-full border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
       {label}
     </span>
   ) : (
-    <span className="mt-1 inline-block rounded-full bg-[#3a1515] px-2 py-0.5 text-[10px] font-semibold text-[#ff8a8a]">
+    <span className="mt-1 inline-block rounded-full border border-rose-200/60 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">
       {label}
     </span>
   );
@@ -84,5 +84,5 @@ export function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
 
 export function ErrorText({ children }: { children?: ReactNode }) {
   if (!children) return null;
-  return <p className="rounded-xl bg-red-500/10 px-3 py-2 text-sm text-app-red">{children}</p>;
+  return <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{children}</p>;
 }

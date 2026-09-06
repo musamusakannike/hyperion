@@ -32,22 +32,22 @@ function ProfileInner() {
     <AppShell tabs={studentTabs} title="Profile">
       <div className="col-span-12 mx-auto w-full max-w-lg space-y-4">
         <Card className="space-y-2 p-5">
-          <h2 className="text-lg font-semibold">{user?.fullName}</h2>
-          <p className="text-sm text-zinc-400">{user?.email}</p>
-          <p className="text-sm text-zinc-400">Matric · {user?.matricNumber}</p>
-          <p className="text-sm text-zinc-400">{user?.hasRfid ? "RFID card bound" : "No RFID card yet"}</p>
+          <h2 className="text-lg font-semibold text-slate-900">{user?.fullName}</h2>
+          <p className="text-sm text-slate-500">{user?.email}</p>
+          <p className="text-sm text-slate-500">Matric · {user?.matricNumber}</p>
+          <p className="text-sm text-slate-500">{user?.hasRfid ? "RFID card bound" : "No RFID card yet"}</p>
         </Card>
         <Card className="p-5">
-          <h3 className="font-semibold">Change ride PIN</h3>
+          <h3 className="font-semibold text-slate-900">Change ride PIN</h3>
           <form className="mt-4 space-y-3" onSubmit={savePin}>
             <Field id="currentPin" label="Current PIN" value={currentPin} onChange={(e) => setCurrentPin(e.target.value)} />
             <Field id="newPin" label="New PIN" value={newPin} onChange={(e) => setNewPin(e.target.value)} />
             <ErrorText>{error}</ErrorText>
-            {msg ? <p className="text-sm text-app-green">{msg}</p> : null}
+            {msg ? <p className="text-sm text-emerald-600">{msg}</p> : null}
             <PrimaryButton type="submit">Update PIN</PrimaryButton>
           </form>
         </Card>
-        <button type="button" onClick={logout} className="w-full rounded-xl border border-white/10 py-3 text-sm text-zinc-300">
+        <button type="button" onClick={logout} className="w-full rounded-xl border border-slate-200 py-3 text-sm text-slate-700 hover:bg-slate-50 transition">
           Sign out
         </button>
       </div>
