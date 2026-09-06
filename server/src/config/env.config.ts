@@ -27,6 +27,7 @@ export const env = {
   seedAdminName: process.env.SEED_ADMIN_NAME ?? "Hyperion Admin",
   paystackSecretKey: process.env.PAYSTACK_SECRET_KEY ?? "",
   paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY ?? "",
+  paystackCallbackUrl: process.env.PAYSTACK_CALLBACK_URL ?? "",
 };
 
 export const isProduction = env.nodeEnv === "production";

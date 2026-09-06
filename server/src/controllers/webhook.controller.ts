@@ -12,6 +12,7 @@ type PaystackWebhook = {
     amount?: number;
     customer?: { customer_code?: string; email?: string };
     dedicated_account?: { account_number?: string };
+    metadata?: { userId?: string };
   };
 };
 
@@ -21,7 +22,7 @@ export const paystackWebhook: RequestHandler = async (request, response, next) =
       (request as express.Request & { rawBody?: string }).rawBody ??
       (typeof request.body === "string" ? request.body : JSON.stringify(request.body));
     const signature = request.header("x-paystack-signature");
-    if (env.paystackSecretKey && !verifyPaystackSignature(raw, signature)) {
+    if (!env.paystackSecretKey || !verifyPaystackSignature(raw, signature)) {
       response.status(401).json({ message: "Invalid Paystack signature" });
       return;
     }
@@ -32,7 +33,10 @@ export const paystackWebhook: RequestHandler = async (request, response, next) =
     if (payload.event === "charge.success" && payload.data.amount && payload.data.reference) {
       const customerCode = payload.data.customer?.customer_code;
       const email = payload.data.customer?.email;
-      const user = customerCode
+      const metadataUserId = payload.data.metadata?.userId;
+      const user = metadataUserId
+        ? await User.findOne({ _id: metadataUserId, role: "student" })
+        : customerCode
         ? await User.findOne({ paystackCustomerCode: customerCode })
         : email
           ? await User.findOne({ email })

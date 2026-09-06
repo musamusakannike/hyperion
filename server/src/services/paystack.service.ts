@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { env } from "../config/env.config";
 
 const PAYSTACK_BASE = "https://api.paystack.co";
@@ -18,6 +18,12 @@ type PaystackDedicatedAccount = {
     bank: { name: string };
     customer?: { customer_code: string };
   };
+};
+
+type PaystackTransaction = {
+  status: boolean;
+  message: string;
+  data?: { authorization_url: string; access_code: string; reference: string };
 };
 
 const paystackEnabled = (): boolean => Boolean(env.paystackSecretKey);
@@ -41,7 +47,35 @@ const paystackFetch = async <T>(path: string, init?: RequestInit): Promise<T> =>
 export const verifyPaystackSignature = (rawBody: string, signature: string | undefined): boolean => {
   if (!paystackEnabled() || !signature) return false;
   const hash = createHmac("sha512", env.paystackSecretKey).update(rawBody).digest("hex");
-  return hash === signature;
+  const expected = Buffer.from(hash, "utf8");
+  const received = Buffer.from(signature, "utf8");
+  return expected.length === received.length && timingSafeEqual(expected, received);
+};
+
+export const initializePaystackTransaction = async (params: {
+  email: string;
+  amountKobo: number;
+  userId: string;
+  callbackUrl?: string;
+}): Promise<{ authorizationUrl: string; accessCode: string; reference: string }> => {
+  if (!paystackEnabled()) {
+    throw new Error("Paystack payments are not configured");
+  }
+
+  const transaction = await paystackFetch<PaystackTransaction>("/transaction/initialize", {
+    method: "POST",
+    body: JSON.stringify({
+      email: params.email,
+      amount: params.amountKobo,
+      ...(params.callbackUrl ? { callback_url: params.callbackUrl } : {}),
+      metadata: { userId: params.userId, purpose: "ride_points_funding" },
+    }),
+  });
+  const data = transaction.data;
+  if (!data?.authorization_url || !data.access_code || !data.reference) {
+    throw new Error("Paystack did not return a payment authorization URL");
+  }
+  return { authorizationUrl: data.authorization_url, accessCode: data.access_code, reference: data.reference };
 };
 
 export const createStudentPaystackAccount = async (

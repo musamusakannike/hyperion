@@ -95,9 +95,10 @@ Headless reader: `POST /api/admin/devices` with `{ driverId, deviceLabel }` retu
 
 1. Put `PAYSTACK_SECRET_KEY` in `.env` (test key is fine).
 2. New students get a Paystack customer; dedicated NUBAN is created when your Paystack plan allows it.
-3. Expose the API (`ngrok http 5000`) and set webhook URL to `https://YOUR_HOST/api/webhooks/paystack`.
-4. Student transfers ₦250 (or more) to the account shown on `GET /api/me/wallet`.
-5. Webhook credits **whole points**; leftover kobo waits for the next deposit (`₦300` → 1 point + ₦50 leftover).
+3. Set the Paystack Dashboard webhook URL to `https://hyperion-4zp3.onrender.com/api/webhooks/paystack` (or `https://YOUR_API_HOST/api/webhooks/paystack` for another deployment). For local testing, expose the API with `ngrok http 5000` and use its HTTPS URL.
+4. Students can either transfer ₦250 (or more) to the dedicated account shown on `GET /api/me/wallet`, or open the normal Paystack checkout with `POST /api/me/funding/initialize`.
+5. Optionally set `PAYSTACK_CALLBACK_URL` to the frontend funding page, e.g. `https://YOUR_APP_HOST/student/fund`. This only returns the student to the app; the webhook is the source of truth for wallet crediting.
+6. Webhook credits **whole points**; leftover kobo waits for the next deposit (`₦300` → 1 point + ₦50 leftover).
 
 Without Paystack, use admin point adjustments.
 
@@ -110,6 +111,7 @@ Without Paystack, use admin point adjustments.
 | GET | `/api/auth/me` | any logged-in |
 | POST | `/api/auth/pin` | student |
 | GET | `/api/me/wallet` | student |
+| POST | `/api/me/funding/initialize` | student |
 | GET | `/api/me/qr` | student |
 | GET | `/api/me/trips` | student |
 | POST | `/api/scans` | driver or device key |

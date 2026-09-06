@@ -3,6 +3,8 @@ import { Trip } from "../models/trip.model";
 import { User } from "../models/user.model";
 import { AppError } from "../utils/app-error";
 import { randomToken } from "../utils/crypto";
+import { env } from "../config/env.config";
+import { initializePaystackTransaction } from "../services/paystack.service";
 
 export const getWallet: RequestHandler = async (request, response, next) => {
   try {
@@ -14,6 +16,29 @@ export const getWallet: RequestHandler = async (request, response, next) => {
       dedicatedAccount: user.dedicatedAccount,
       ridePriceKobo: Number(process.env.RIDE_PRICE_KOBO ?? 25_000),
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const initializeFunding: RequestHandler = async (request, response, next) => {
+  try {
+    const amountNaira = Number(request.body?.amountNaira);
+    if (!Number.isFinite(amountNaira) || amountNaira < 100 || !Number.isInteger(amountNaira)) {
+      throw new AppError("Enter a whole amount of at least ₦100", 400);
+    }
+
+    const user = await User.findById(request.user!.id);
+    if (!user || user.role !== "student") throw new AppError("Student not found", 404);
+
+    const callbackUrl = env.paystackCallbackUrl || (env.clientOrigins[0] ? `${env.clientOrigins[0].replace(/\/$/, "")}/student/fund` : undefined);
+    const payment = await initializePaystackTransaction({
+      email: user.email,
+      amountKobo: Math.round(amountNaira * 100),
+      userId: user.id,
+      callbackUrl,
+    });
+    response.status(201).json(payment);
   } catch (error) {
     next(error);
   }
