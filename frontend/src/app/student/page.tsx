@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiCopy, FiStar, FiTruck, FiCreditCard, FiUser } from "react-icons/fi";
+import { FiCopy, FiStar } from "react-icons/fi";
 import { Guard } from "@/components/guard";
 import { AppShell, studentTabs } from "@/components/shell";
 import { RideRow } from "@/components/ride-row";
@@ -10,6 +10,30 @@ import { Card } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { Trip } from "@/lib/types";
+
+function BusIcon({ className = "h-8 w-8 text-blue-600" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z" />
+    </svg>
+  );
+}
+
+function FundIcon({ className = "h-8 w-8 text-blue-600" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+    </svg>
+  );
+}
+
+function ProfileIcon({ className = "h-8 w-8 text-blue-600" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+    </svg>
+  );
+}
 
 function StudentHome() {
   const { user, refresh } = useAuth();
@@ -61,9 +85,9 @@ function StudentHome() {
           </div>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { href: "/student/qr", label: "RIDE", icon: FiTruck },
-              { href: "/student/fund", label: "FUND", icon: FiCreditCard },
-              { href: "/student/profile", label: "PROFILE", icon: FiUser },
+              { href: "/student/qr", label: "RIDE", icon: BusIcon },
+              { href: "/student/fund", label: "FUND", icon: FundIcon },
+              { href: "/student/profile", label: "PROFILE", icon: ProfileIcon },
             ].map((item) => (
               <Link
                 key={item.label}
@@ -82,7 +106,7 @@ function StudentHome() {
         <section>
           <div className="relative flex items-center rounded-2xl border border-blue-100 bg-blue-50 p-3.5 text-blue-950 shadow-sm">
             <div className="mr-3 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-100">
-              <FiTruck className="h-8 w-8 text-blue-600" />
+              <BusIcon className="h-8 w-8 text-blue-600" />
             </div>
             <div className="pr-2">
               <h3 className="flex items-center text-sm font-bold tracking-tight text-blue-900">
