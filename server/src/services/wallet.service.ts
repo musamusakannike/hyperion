@@ -1,6 +1,7 @@
 import { env } from "../config/env.config";
 import { Ledger } from "../models/ledger.model";
 import { User } from "../models/user.model";
+import { notifyAdminAdjustPoints, notifyWalletCredited } from "./notification.service";
 import { AppError } from "../utils/app-error";
 
 export const creditFromDeposit = async (params: {
@@ -39,6 +40,13 @@ export const creditFromDeposit = async (params: {
     paystackReference: params.paystackReference,
   });
 
+  void notifyWalletCredited({
+    userId: user.id,
+    amountKobo: params.amountKobo,
+    pointsAdded,
+    totalPoints: user.ridePoints,
+  });
+
   return { pointsAdded, ridePoints: user.ridePoints, leftoverKobo };
 };
 
@@ -67,5 +75,13 @@ export const adminAdjustPoints = async (params: {
     note: params.note,
   });
 
+  void notifyAdminAdjustPoints({
+    userId: user.id,
+    deltaPoints: params.deltaPoints,
+    totalPoints: user.ridePoints,
+    note: params.note,
+  });
+
   return { ridePoints: user.ridePoints };
 };
+

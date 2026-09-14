@@ -3,6 +3,7 @@ import { env } from "../config/env.config";
 import { Ledger } from "../models/ledger.model";
 import { Trip, type ScanMethod } from "../models/trip.model";
 import { User } from "../models/user.model";
+import { notifyLowBalance, notifyRideConfirmed, notifyRideFailed } from "./notification.service";
 import { AppError } from "../utils/app-error";
 import { normalizeScanToken, verifySecret } from "../utils/crypto";
 
@@ -62,6 +63,13 @@ export const performScan = async (input: ScanInput): Promise<ScanResult> => {
       failReason: code,
       requestId: input.requestId,
     });
+
+    void notifyRideFailed({
+      studentId: String(studentId),
+      code,
+      message,
+    });
+
     return { ok: false, code, message, tripId: String(trip._id) } satisfies ScanResult;
   };
 
@@ -102,6 +110,19 @@ export const performScan = async (input: ScanInput): Promise<ScanResult> => {
     reason: "ride",
     tripId: trip._id,
   });
+
+  void notifyRideConfirmed({
+    studentId: String(student._id),
+    tripId: String(trip._id),
+    remainingPoints: updated.ridePoints,
+  });
+
+  if (updated.ridePoints <= 2) {
+    void notifyLowBalance({
+      studentId: String(student._id),
+      remainingPoints: updated.ridePoints,
+    });
+  }
 
   return {
     ok: true,

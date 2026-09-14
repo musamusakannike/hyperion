@@ -28,6 +28,7 @@ export const env = {
   paystackSecretKey: process.env.PAYSTACK_SECRET_KEY ?? "",
   paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY ?? "",
   paystackCallbackUrl: process.env.PAYSTACK_CALLBACK_URL ?? "",
+  expoAccessToken: process.env.EXPO_ACCESS_TOKEN ?? "",
 };
 
 export const isProduction = env.nodeEnv === "production";

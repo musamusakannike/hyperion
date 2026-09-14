@@ -26,6 +26,7 @@ const userSchema = new Schema(
     dedicatedAccount: { type: dedicatedAccountSchema, default: () => ({}) },
     ridePoints: { type: Number, default: 0, min: 0 },
     leftoverKobo: { type: Number, default: 0, min: 0 },
+    pushTokens: { type: [String], default: [] },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
@@ -40,6 +41,7 @@ userSchema.set("toJSON", {
     delete ret.passwordHash;
     delete ret.pinHash;
     delete ret.qrToken;
+    delete ret.pushTokens;
     return ret;
   },
 });

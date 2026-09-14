@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,10 +8,16 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Notifications from "expo-notifications";
 import { AppHeader, Card, ErrorText, Field, PrimaryButton, StatusBadge } from "@/components/ui";
 import { KeyIcon, LockIcon } from "@/components/icons";
 import { useAuth } from "@/lib/auth-context";
 import { api, apiError } from "@/lib/api";
+import {
+  registerForPushNotificationsAsync,
+  sendTestPushNotification,
+  syncPushTokenWithServer,
+} from "@/lib/notifications";
 import { theme } from "@/theme";
 
 export default function StudentProfileScreen() {
@@ -23,6 +29,23 @@ export default function StudentProfileScreen() {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Push notification state
+  const [notifPermission, setNotifPermission] = useState<boolean | null>(null);
+  const [notifBusy, setNotifBusy] = useState(false);
+  const [notifMsg, setNotifMsg] = useState("");
+  const [notifError, setNotifError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        setNotifPermission(status === "granted");
+      } catch {
+        setNotifPermission(false);
+      }
+    })();
+  }, []);
 
   const savePin = async () => {
     if (!currentPin || !newPin) {
@@ -46,6 +69,45 @@ export default function StudentProfileScreen() {
       setError(apiError(err, "Could not update PIN"));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    setNotifBusy(true);
+    setNotifError("");
+    setNotifMsg("");
+    try {
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        await syncPushTokenWithServer(token);
+        setNotifPermission(true);
+        setNotifMsg("Push notifications enabled and synced!");
+      } else {
+        setNotifPermission(false);
+        setNotifError("Notification permission was not granted.");
+      }
+    } catch (err) {
+      setNotifError("Failed to enable notifications.");
+    } finally {
+      setNotifBusy(false);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    setNotifBusy(true);
+    setNotifError("");
+    setNotifMsg("");
+    try {
+      const res = await sendTestPushNotification();
+      if (res.success) {
+        setNotifMsg("Test notification sent! Check your notification bar.");
+      } else {
+        setNotifError(res.message);
+      }
+    } catch (err) {
+      setNotifError("Could not send test notification");
+    } finally {
+      setNotifBusy(false);
     }
   };
 
@@ -117,6 +179,51 @@ export default function StudentProfileScreen() {
           </PrimaryButton>
         </Card>
 
+        {/* Push Notifications Card */}
+        <Card style={styles.card}>
+          <Text style={styles.cardTitle}>Push Notifications</Text>
+          <Text style={styles.cardSubtitle}>
+            Receive real-time alerts for top-ups, shuttle boardings, and low balance warnings.
+          </Text>
+
+          <View style={styles.notifStatusRow}>
+            <StatusBadge
+              ok={!!notifPermission}
+              label={notifPermission ? "Notifications active" : "Notifications inactive"}
+            />
+          </View>
+
+          {notifMsg ? (
+            <View style={styles.successBanner}>
+              <Text style={styles.successText}>{notifMsg}</Text>
+            </View>
+          ) : null}
+
+          <ErrorText>{notifError}</ErrorText>
+
+          <View style={styles.notifActions}>
+            {!notifPermission ? (
+              <PrimaryButton
+                onPress={handleEnableNotifications}
+                loading={notifBusy}
+                disabled={notifBusy}
+              >
+                Enable Notifications
+              </PrimaryButton>
+            ) : null}
+
+            <PrimaryButton
+              variant="outline"
+              onPress={handleTestNotification}
+              loading={notifBusy}
+              disabled={notifBusy}
+              style={styles.testBtn}
+            >
+              Send Test Notification
+            </PrimaryButton>
+          </View>
+        </Card>
+
         {/* Sign Out Button */}
         <PrimaryButton
           variant="outline"
@@ -174,6 +281,16 @@ const styles = StyleSheet.create({
   },
   updatePinBtn: {
     marginTop: 8,
+  },
+  notifStatusRow: {
+    marginBottom: 12,
+  },
+  notifActions: {
+    gap: 10,
+    marginTop: 4,
+  },
+  testBtn: {
+    marginTop: 2,
   },
   successBanner: {
     backgroundColor: theme.colors.greenBg,

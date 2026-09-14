@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { User } from "../models/user.model";
 import { createStudentPaystackAccount } from "../services/paystack.service";
+import { isValidPushToken, notifyPinChanged, sendPushNotification } from "../services/notification.service";
 import { AppError } from "../utils/app-error";
 import { assertPinFormat, hashSecret, randomToken, verifySecret } from "../utils/crypto";
 import { signAccessToken } from "../utils/jwt";
@@ -31,12 +32,13 @@ const publicUser = (user: {
 
 export const registerStudent: RequestHandler = async (request, response, next) => {
   try {
-    const { email, password, fullName, matricNumber, pin } = request.body as {
+    const { email, password, fullName, matricNumber, pin, pushToken } = request.body as {
       email?: string;
       password?: string;
       fullName?: string;
       matricNumber?: string;
       pin?: string;
+      pushToken?: string;
     };
 
     if (!email || !password || !fullName || !matricNumber || !pin) {
@@ -66,6 +68,7 @@ export const registerStudent: RequestHandler = async (request, response, next) =
       qrToken: randomToken(),
       paystackCustomerCode: paystack?.customerCode,
       dedicatedAccount: paystack?.dedicatedAccount,
+      pushTokens: pushToken && isValidPushToken(pushToken) ? [pushToken] : [],
     });
 
     const token = signAccessToken(user.id, user.role);
@@ -77,7 +80,11 @@ export const registerStudent: RequestHandler = async (request, response, next) =
 
 export const login: RequestHandler = async (request, response, next) => {
   try {
-    const { email, password } = request.body as { email?: string; password?: string };
+    const { email, password, pushToken } = request.body as {
+      email?: string;
+      password?: string;
+      pushToken?: string;
+    };
     if (!email || !password) {
       throw new AppError("email and password are required");
     }
@@ -88,6 +95,10 @@ export const login: RequestHandler = async (request, response, next) => {
     }
     if (!user.isActive) {
       throw new AppError("Account is disabled", 403, "DISABLED");
+    }
+
+    if (pushToken && isValidPushToken(pushToken)) {
+      await User.findByIdAndUpdate(user.id, { $addToSet: { pushTokens: pushToken } });
     }
 
     const token = signAccessToken(user.id, user.role);
@@ -127,7 +138,52 @@ export const changePin: RequestHandler = async (request, response, next) => {
 
     user.pinHash = await hashSecret(newPin);
     await user.save();
+
+    void notifyPinChanged(user.id);
+
     response.json({ message: "PIN updated" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const registerPushToken: RequestHandler = async (request, response, next) => {
+  try {
+    const { pushToken } = request.body as { pushToken?: string };
+    if (!pushToken || !isValidPushToken(pushToken)) {
+      throw new AppError("A valid Expo push token is required", 400);
+    }
+    await User.findByIdAndUpdate(request.user!.id, { $addToSet: { pushTokens: pushToken } });
+    response.json({ message: "Push token registered successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removePushToken: RequestHandler = async (request, response, next) => {
+  try {
+    const { pushToken } = request.body as { pushToken?: string };
+    if (pushToken) {
+      await User.findByIdAndUpdate(request.user!.id, { $pull: { pushTokens: pushToken } });
+    }
+    response.json({ message: "Push token removed successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const testPushNotification: RequestHandler = async (request, response, next) => {
+  try {
+    const user = await User.findById(request.user!.id);
+    if (!user) throw new AppError("User not found", 404);
+
+    const result = await sendPushNotification(user.id, {
+      title: "Hyperion Notifications Active 🚀",
+      body: `Hello ${user.fullName}, push notifications are working properly on your device!`,
+      data: { type: "TEST_NOTIFICATION" },
+    });
+
+    response.json({ message: "Test notification dispatched", ...result });
   } catch (error) {
     next(error);
   }

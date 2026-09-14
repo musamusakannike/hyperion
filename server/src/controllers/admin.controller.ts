@@ -2,6 +2,12 @@ import type { RequestHandler } from "express";
 import { DriverDevice } from "../models/driver-device.model";
 import { Trip } from "../models/trip.model";
 import { User } from "../models/user.model";
+import {
+  notifyAccountStatus,
+  notifyRfidBound,
+  notifyRfidUnbound,
+  notifyQrRotated,
+} from "../services/notification.service";
 import { createStudentPaystackAccount } from "../services/paystack.service";
 import { adminAdjustPoints } from "../services/wallet.service";
 import { AppError } from "../utils/app-error";
@@ -96,6 +102,11 @@ export const updateUser: RequestHandler = async (request, response, next) => {
       { new: true },
     ).select(studentSelect);
     if (!user) throw new AppError("User not found", 404);
+
+    if (typeof isActive === "boolean") {
+      void notifyAccountStatus(user.id, isActive);
+    }
+
     response.json({ user });
   } catch (error) {
     next(error);
@@ -110,6 +121,9 @@ export const bindRfid: RequestHandler = async (request, response, next) => {
     if (taken) throw new AppError("This RFID card is already bound to another student", 409);
     const user = await User.findByIdAndUpdate(request.params.id, { rfidUid }, { new: true }).select(studentSelect);
     if (!user) throw new AppError("Student not found", 404);
+
+    void notifyRfidBound(user.id);
+
     response.json({ user });
   } catch (error) {
     next(error);
@@ -124,6 +138,9 @@ export const unbindRfid: RequestHandler = async (request, response, next) => {
       { new: true },
     ).select(studentSelect);
     if (!user) throw new AppError("Student not found", 404);
+
+    void notifyRfidUnbound(user.id);
+
     response.json({ user });
   } catch (error) {
     next(error);
@@ -138,6 +155,9 @@ export const rotateQr: RequestHandler = async (request, response, next) => {
       { new: true },
     ).select(studentSelect);
     if (!user) throw new AppError("Student not found", 404);
+
+    void notifyQrRotated(user.id);
+
     response.json({ message: "QR token rotated. Student must open the app again to see the new code." });
   } catch (error) {
     next(error);

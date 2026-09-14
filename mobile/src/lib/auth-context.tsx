@@ -1,6 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 import { api, initToken, setToken } from "./api";
+import {
+  registerForPushNotificationsAsync,
+  removePushTokenFromServer,
+  syncPushTokenWithServer,
+} from "./notifications";
 import type { User, UserRole } from "./types";
 
 type AuthContextValue = {
@@ -35,6 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data } = await api.get<{ user: User }>("/api/auth/me");
       setUser(data.user);
+      // Sync push token if user session is valid
+      void (async () => {
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          await syncPushTokenWithServer(token);
+        }
+      })();
     } catch {
       await setToken(null);
       setUser(null);
@@ -57,12 +69,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
+      let pushToken: string | null = null;
+      try {
+        pushToken = await registerForPushNotificationsAsync();
+      } catch (err) {
+        console.warn("[Auth] Could not fetch push token before login:", err);
+      }
+
       const { data } = await api.post<{ token: string; user: User }>("/api/auth/login", {
         email: email.trim().toLowerCase(),
         password,
+        pushToken: pushToken || undefined,
       });
       await setToken(data.token);
       setUser(data.user);
+
+      if (pushToken) {
+        void syncPushTokenWithServer(pushToken);
+      }
+
       router.replace(homeFor(data.user.role) as any);
       return data.user;
     },
@@ -77,12 +102,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       matricNumber: string;
       pin: string;
     }) => {
+      let pushToken: string | null = null;
+      try {
+        pushToken = await registerForPushNotificationsAsync();
+      } catch (err) {
+        console.warn("[Auth] Could not fetch push token before register:", err);
+      }
+
       const { data } = await api.post<{ token: string; user: User }>("/api/auth/register", {
         ...payload,
         email: payload.email.trim().toLowerCase(),
+        pushToken: pushToken || undefined,
       });
       await setToken(data.token);
       setUser(data.user);
+
+      if (pushToken) {
+        void syncPushTokenWithServer(pushToken);
+      }
+
       router.replace("/(student)" as any);
       return data.user;
     },
@@ -90,6 +128,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    try {
+      await removePushTokenFromServer();
+    } catch {}
     await setToken(null);
     setUser(null);
     router.replace("/(auth)/login" as any);
