@@ -11,7 +11,7 @@ import {
 import { createStudentPaystackAccount } from "../services/paystack.service";
 import { adminAdjustPoints } from "../services/wallet.service";
 import { AppError } from "../utils/app-error";
-import { assertPinFormat, hashSecret, randomToken } from "../utils/crypto";
+import { assertPinFormat, hashSecret, normalizeRfidUid, randomToken } from "../utils/crypto";
 
 const studentSelect = "fullName email matricNumber role ridePoints leftoverKobo dedicatedAccount rfidUid isActive createdAt";
 
@@ -115,14 +115,22 @@ export const updateUser: RequestHandler = async (request, response, next) => {
 
 export const bindRfid: RequestHandler = async (request, response, next) => {
   try {
-    const { rfidUid } = request.body as { rfidUid?: string };
-    if (!rfidUid) throw new AppError("rfidUid is required");
-    const taken = await User.findOne({ rfidUid, _id: { $ne: request.params.id } });
-    if (taken) throw new AppError("This RFID card is already bound to another student", 409);
-    const user = await User.findByIdAndUpdate(request.params.id, { rfidUid }, { new: true }).select(studentSelect);
-    if (!user) throw new AppError("Student not found", 404);
+    const { rfidUid: rawUid } = request.body as { rfidUid?: string };
+    if (!rawUid) throw new AppError("rfidUid is required");
+    const rfidUid = normalizeRfidUid(rawUid);
+    if (rfidUid.length < 4) throw new AppError("RFID UID looks too short");
 
-    void notifyRfidBound(user.id);
+    const student = await User.findById(request.params.id);
+    if (!student || student.role !== "student") throw new AppError("Student not found", 404);
+
+    const taken = await User.findOne({ rfidUid, _id: { $ne: student._id } });
+    if (taken) throw new AppError(`This RFID card is already bound to ${taken.fullName}`, 409);
+
+    student.rfidUid = rfidUid;
+    await student.save();
+    const user = await User.findById(student._id).select(studentSelect);
+
+    void notifyRfidBound(student.id);
 
     response.json({ user });
   } catch (error) {
@@ -190,6 +198,30 @@ export const listTrips: RequestHandler = async (request, response, next) => {
       .populate("studentId", "fullName matricNumber")
       .populate("driverId", "fullName");
     response.json({ trips });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const lookupStudentByRfid: RequestHandler = async (request, response, next) => {
+  try {
+    const raw = String(request.query.uid ?? "");
+    const rfidUid = normalizeRfidUid(raw);
+    if (!rfidUid) throw new AppError("uid query is required");
+    const user = await User.findOne({ rfidUid, role: "student" }).select(studentSelect);
+    response.json({ user, rfidUid });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listDevices: RequestHandler = async (_request, response, next) => {
+  try {
+    const devices = await DriverDevice.find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .populate("driverId", "fullName email");
+    response.json({ devices });
   } catch (error) {
     next(error);
   }

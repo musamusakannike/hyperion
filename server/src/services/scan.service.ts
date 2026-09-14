@@ -5,7 +5,7 @@ import { Trip, type ScanMethod } from "../models/trip.model";
 import { User } from "../models/user.model";
 import { notifyLowBalance, notifyRideConfirmed, notifyRideFailed } from "./notification.service";
 import { AppError } from "../utils/app-error";
-import { normalizeScanToken, verifySecret } from "../utils/crypto";
+import { normalizeRfidUid, normalizeScanToken, verifySecret } from "../utils/crypto";
 
 type ScanInput = {
   driverId: string;
@@ -46,7 +46,8 @@ export const performScan = async (input: ScanInput): Promise<ScanResult> => {
     }
   }
 
-  const token = normalizeScanToken(input.token);
+  const token =
+    input.method === "rfid" ? normalizeRfidUid(input.token) : normalizeScanToken(input.token);
   const studentQuery =
     input.method === "rfid" ? { rfidUid: token, role: "student" as const } : { qrToken: token, role: "student" as const };
 

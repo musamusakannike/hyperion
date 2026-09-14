@@ -41,6 +41,10 @@ export default function AdminPeopleScreen() {
   const [pointsInput, setPointsInput] = useState<Record<string, string>>({});
   const [rfidInput, setRfidInput] = useState<Record<string, string>>({});
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+  const [search, setSearch] = useState("");
+  const [linkStudentId, setLinkStudentId] = useState("");
+  const [linkUid, setLinkUid] = useState("");
+  const [okMsg, setOkMsg] = useState("");
 
   const loadUsers = useCallback(async () => {
     try {
@@ -126,14 +130,21 @@ export default function AdminPeopleScreen() {
     }
   };
 
-  const bindRfid = async (id: string) => {
-    const rfid = rfidInput[id]?.trim();
-    if (!rfid) return;
+  const bindRfid = async (id: string, uid?: string) => {
+    const rfid = (uid ?? rfidInput[id] ?? "").trim();
+    if (!rfid) {
+      setError("Enter the RFID UID from the bus pod serial log");
+      return;
+    }
 
     setActionLoading((prev) => ({ ...prev, [`rfid-${id}`]: true }));
+    setError("");
+    setOkMsg("");
     try {
       await api.post(`/api/admin/students/${id}/rfid`, { rfidUid: rfid });
       setRfidInput((prev) => ({ ...prev, [id]: "" }));
+      setLinkUid("");
+      setOkMsg("RFID card linked");
       await loadUsers();
     } catch (err) {
       setError(apiError(err, "Could not bind RFID"));
@@ -141,6 +152,29 @@ export default function AdminPeopleScreen() {
       setActionLoading((prev) => ({ ...prev, [`rfid-${id}`]: false }));
     }
   };
+
+  const unbindRfid = async (id: string) => {
+    setActionLoading((prev) => ({ ...prev, [`rfid-${id}`]: true }));
+    try {
+      await api.delete(`/api/admin/students/${id}/rfid`);
+      setOkMsg("RFID unbound");
+      await loadUsers();
+    } catch (err) {
+      setError(apiError(err, "Could not unbind RFID"));
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [`rfid-${id}`]: false }));
+    }
+  };
+
+  const students = users.filter((u) => u.role === "student");
+  const visibleUsers = users.filter((u) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return [u.fullName, u.email, u.matricNumber, u.rfidUid]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(q));
+  });
+  const linkStudent = students.find((s) => (s.id || (s as User & { _id?: string })._id) === linkStudentId);
 
   return (
     <KeyboardAvoidingView
@@ -155,6 +189,54 @@ export default function AdminPeopleScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <ErrorText>{error}</ErrorText>
+        {okMsg ? <Text style={styles.okBanner}>{okMsg}</Text> : null}
+
+        <Card style={styles.card}>
+          <Text style={styles.cardTitle}>Link RFID card</Text>
+          <Text style={styles.hint}>
+            Copy the UID from the ESP32 serial log (e.g. 01020304), choose the student, then bind.
+          </Text>
+          <Text style={styles.pickerLabel}>Student</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+            {students.map((s) => {
+              const id = s.id || (s as User & { _id?: string })._id || "";
+              const active = linkStudentId === id;
+              return (
+                <TouchableOpacity
+                  key={id}
+                  onPress={() => setLinkStudentId(id)}
+                  style={[styles.chip, active && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
+                    {s.fullName}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          {linkStudent?.rfidUid ? (
+            <Text style={styles.boundNote}>Currently bound: {linkStudent.rfidUid}</Text>
+          ) : null}
+          <Field
+            label="RFID UID"
+            placeholder="01020304"
+            autoCapitalize="characters"
+            value={linkUid}
+            onChangeText={setLinkUid}
+          />
+          <PrimaryButton
+            onPress={() => linkStudentId && bindRfid(linkStudentId, linkUid)}
+            loading={!!actionLoading[`rfid-${linkStudentId}`]}
+            disabled={!linkStudentId || actionLoading[`rfid-${linkStudentId}`]}
+          >
+            Bind card to student
+          </PrimaryButton>
+          {linkStudent?.rfidUid ? (
+            <TouchableOpacity style={styles.unbindBtn} onPress={() => unbindRfid(linkStudentId)}>
+              <Text style={styles.unbindBtnText}>Unbind card</Text>
+            </TouchableOpacity>
+          ) : null}
+        </Card>
 
         {/* Create Student Card */}
         <Card style={styles.card}>
@@ -215,10 +297,18 @@ export default function AdminPeopleScreen() {
         </Card>
 
         {/* Users List */}
-        <Text style={styles.listHeading}>User Directory ({users.length})</Text>
+        <TextInput
+          style={styles.search}
+          placeholder="Search name, matric, RFID…"
+          placeholderTextColor={theme.colors.mutedLight}
+          value={search}
+          onChangeText={setSearch}
+        />
+
+        <Text style={styles.listHeading}>User Directory ({visibleUsers.length})</Text>
 
         <View style={styles.usersList}>
-          {users.map((u) => {
+          {visibleUsers.map((u) => {
             const id = u.id || (u as User & { _id?: string })._id || "";
             const isStudent = u.role === "student";
 
@@ -239,8 +329,8 @@ export default function AdminPeopleScreen() {
                     <View style={styles.pointsBadgeRow}>
                       <Text style={styles.pointsLabel}>Balance:</Text>
                       <Text style={styles.pointsValue}>{u.ridePoints ?? 0} PTS</Text>
-                      {u.hasRfid ? (
-                        <Text style={styles.rfidBoundBadge}>RFID Active</Text>
+                      {u.rfidUid || u.hasRfid ? (
+                        <Text style={styles.rfidBoundBadge}>{u.rfidUid || "RFID"}</Text>
                       ) : null}
                     </View>
 
@@ -271,7 +361,7 @@ export default function AdminPeopleScreen() {
                         placeholder="RFID UID"
                         placeholderTextColor={theme.colors.mutedLight}
                         autoCapitalize="characters"
-                        value={rfidInput[id] ?? ""}
+                        value={rfidInput[id] ?? u.rfidUid ?? ""}
                         onChangeText={(t) => setRfidInput((p) => ({ ...p, [id]: t }))}
                       />
                       <TouchableOpacity
@@ -289,6 +379,15 @@ export default function AdminPeopleScreen() {
                           {actionLoading[`rfid-${id}`] ? "…" : "Bind"}
                         </Text>
                       </TouchableOpacity>
+                      {u.rfidUid ? (
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => unbindRfid(id)}
+                          style={[styles.inlineActionBtn, styles.inlineActionBtnDanger]}
+                        >
+                          <Text style={styles.inlineActionBtnDangerText}>×</Text>
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
                   </View>
                 ) : null}
@@ -319,6 +418,78 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: 12,
+  },
+  hint: {
+    fontSize: 12,
+    color: theme.colors.muted,
+    marginBottom: 10,
+    marginTop: -6,
+  },
+  pickerLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: theme.colors.textSecondary,
+    marginBottom: 6,
+  },
+  chipScroll: {
+    marginBottom: 10,
+    maxHeight: 40,
+  },
+  chip: {
+    backgroundColor: theme.colors.cardHover,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 8,
+  },
+  chipActive: {
+    backgroundColor: theme.colors.accent,
+    borderColor: theme.colors.accent,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: theme.colors.textSecondary,
+  },
+  chipTextActive: {
+    color: theme.colors.white,
+  },
+  boundNote: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: theme.colors.greenText,
+    marginBottom: 8,
+  },
+  unbindBtn: {
+    marginTop: 10,
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  unbindBtnText: {
+    color: theme.colors.danger ?? "#b91c1c",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+  okBanner: {
+    backgroundColor: theme.colors.greenBg,
+    color: theme.colors.greenText,
+    padding: 10,
+    borderRadius: 12,
+    overflow: "hidden",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  search: {
+    backgroundColor: theme.colors.cardHover,
+    borderColor: theme.colors.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: theme.colors.textPrimary,
   },
   listHeading: {
     fontSize: 16,
@@ -432,5 +603,15 @@ const styles = StyleSheet.create({
   },
   inlineActionBtnOutlineText: {
     color: theme.colors.textSecondary,
+  },
+  inlineActionBtnDanger: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+  },
+  inlineActionBtnDangerText: {
+    color: "#b91c1c",
+    fontSize: 14,
+    fontWeight: "800",
   },
 });

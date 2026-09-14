@@ -18,6 +18,10 @@ export const normalizeScanToken = (raw: string): string => {
   return trimmed;
 };
 
+/** Hex UID from RC522 / Wokwi: strip separators, uppercase. */
+export const normalizeRfidUid = (raw: string): string =>
+  raw.replace(/[^0-9a-fA-F]/g, "").toUpperCase();
+
 export const assertPinFormat = (pin: string): void => {
   if (!/^\d{4,6}$/.test(pin)) {
     throw new Error("PIN must be 4 to 6 digits");
