@@ -39,7 +39,7 @@ export default function DriverLayout() {
       <Tabs.Screen
         name="trips"
         options={{
-          title: "Trips",
+          title: "Rides",
           tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={ListIcon} />,
         }}
       />

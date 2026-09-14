@@ -46,7 +46,7 @@ export function RideRow({
       ? `${nameOf(trip.studentId)} · ${nameOf(trip.driverId)}`
       : "Campus shuttle";
 
-  const subtitle = `${trip.method.toUpperCase()} · ${trip.farePoints} pt`;
+  const subtitle = `${trip.method === "qr" ? "QR" : "Card"} · ${trip.farePoints} ride`;
   const bgIconColor = theme.shuttleColors[index % theme.shuttleColors.length];
 
   return (
@@ -65,9 +65,9 @@ export function RideRow({
       </View>
       <View style={styles.rightCol}>
         <Text style={[styles.pointsText, isSuccess ? styles.pointsDeducted : styles.pointsNeutral]}>
-          {isSuccess ? `-${trip.farePoints} PTS` : "—"}
+          {isSuccess ? `-${trip.farePoints} ride` : "—"}
         </Text>
-        <StatusBadge ok={isSuccess} label={isSuccess ? "Completed" : trip.failReason ?? "Failed"} />
+        <StatusBadge ok={isSuccess} label={isSuccess ? "Done" : trip.failReason ?? "Failed"} />
       </View>
     </View>
   );
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   pointsDeducted: {
-    color: theme.colors.redText,
+    color: theme.colors.accent,
   },
   pointsNeutral: {
     color: theme.colors.mutedLight,

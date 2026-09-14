@@ -51,9 +51,8 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.headerSection}>
           <Avatar name="H" size="lg" />
-          <Text style={styles.title}>WELCOME BACK</Text>
-          <Text style={styles.subtitle}>Hyperion ride points</Text>
-          <Text style={styles.caption}>Sign in to your student, driver, or admin account</Text>
+          <Text style={styles.title}>Hi again!</Text>
+          <Text style={styles.subtitle}>Log in to ride the campus bus.</Text>
         </View>
 
         <View style={styles.form}>
@@ -93,20 +92,20 @@ export default function LoginScreen() {
           <ErrorText>{error}</ErrorText>
 
           <PrimaryButton onPress={onSubmit} loading={busy} disabled={busy} style={styles.submitBtn}>
-            Sign In
+            Let’s go
           </PrimaryButton>
         </View>
 
         <View style={styles.signupSection}>
-          <Text style={styles.signupPrompt}>Don't have an account?</Text>
+          <Text style={styles.signupPrompt}>New here?</Text>
           <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/(auth)/register" as any)}>
-            <Text style={styles.signupLink}>Sign up</Text>
+            <Text style={styles.signupLink}>Make an account</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <ShieldIcon size={16} color={theme.colors.muted} />
-          <Text style={styles.footerText}>Secure login protected by Hyperion</Text>
+          <Text style={styles.footerText}>Safe login</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Guard } from "@/components/guard";
 import { AppShell, driverTabs } from "@/components/shell";
-import { Card, ErrorText, Field, PrimaryButton } from "@/components/ui";
+import { Card, ErrorText, Field, PageIntro, PrimaryButton } from "@/components/ui";
 import { api, apiError } from "@/lib/api";
 import type { ScanResult } from "@/lib/types";
 
@@ -74,53 +74,50 @@ function DriverScan() {
   }, [camOn]);
 
   return (
-    <AppShell tabs={driverTabs} title="Driver">
+    <AppShell tabs={driverTabs} title="Scan">
       <div className="col-span-12 mx-auto w-full max-w-lg space-y-4">
+        <PageIntro title="Take a fare" subtitle="Ask for the PIN first. Then scan the QR or type the card number." />
         <Card className="p-5">
-          <h2 className="text-xl font-bold text-slate-900">Scan a ride</h2>
-          <p className="mt-1 text-sm text-slate-500">Ask for the student PIN, then scan their QR or type an RFID UID.</p>
-          <div className="mt-4 space-y-3">
-            <Field id="pin" label="Student PIN" value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" />
+          <div className="space-y-3">
+            <Field id="pin" label="Student PIN" hint="They tell you this out loud" value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" />
             <div className="flex gap-2">
               {(["qr", "rfid"] as const).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
-                  className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${method === m ? "bg-accent text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  className={`flex-1 rounded-2xl border-2 border-b-4 py-2 text-sm font-extrabold ${method === m ? "border-blue-700 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-600"}`}
                 >
-                  {m.toUpperCase()}
+                  {m === "qr" ? "QR code" : "Card"}
                 </button>
               ))}
             </div>
             <Field
               id="token"
-              label={method === "qr" ? "QR payload" : "RFID UID"}
+              label={method === "qr" ? "QR code text" : "Card number"}
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder={method === "qr" ? "HYP:…" : "04A3B12C"}
             />
             <ErrorText>{error}</ErrorText>
             <PrimaryButton type="button" disabled={busy || !token || !pin} onClick={() => submit(token, method)}>
-              {busy ? "Checking…" : "Charge 1 point"}
+              {busy ? "Checking…" : "Take 1 ride"}
             </PrimaryButton>
-            <button
-              type="button"
-              onClick={() => setCamOn((v) => !v)}
-              className="w-full rounded-xl border border-slate-200 py-3 text-sm text-slate-700 hover:bg-slate-50 transition"
-            >
+            <PrimaryButton type="button" variant="secondary" onClick={() => setCamOn((v) => !v)}>
               {camOn ? "Stop camera" : "Open camera"}
-            </button>
-            {camOn ? <div id={regionId} className="overflow-hidden rounded-2xl" /> : null}
+            </PrimaryButton>
+            {camOn ? <div id={regionId} className="overflow-hidden rounded-3xl" /> : null}
           </div>
         </Card>
         {result ? (
-          <Card className={`p-5 ${result.ok ? "border-emerald-300 bg-emerald-50/50" : "border-rose-300 bg-rose-50/50"}`}>
-            <p className={`text-lg font-bold ${result.ok ? "text-emerald-900" : "text-rose-900"}`}>{result.ok ? "Ride recorded" : "Scan failed"}</p>
-            <p className="mt-1 text-sm text-slate-700">{result.message}</p>
-            {result.studentName ? <p className="mt-2 font-semibold text-slate-900">{result.studentName}</p> : null}
+          <Card className={`p-5 ${result.ok ? "border-lime-200 bg-lime-50" : "border-rose-200 bg-rose-50"}`}>
+            <p className={`text-lg font-black ${result.ok ? "text-lime-800" : "text-rose-800"}`}>
+              {result.ok ? "Nice! Ride saved" : "Didn’t work"}
+            </p>
+            <p className="mt-1 text-sm font-bold text-slate-700">{result.message}</p>
+            {result.studentName ? <p className="mt-2 font-black text-slate-900">{result.studentName}</p> : null}
             {typeof result.remainingPoints === "number" ? (
-              <p className="text-sm text-slate-500">{result.remainingPoints} pts left</p>
+              <p className="text-sm font-bold text-slate-500">{result.remainingPoints} rides left</p>
             ) : null}
           </Card>
         ) : null}

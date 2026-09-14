@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppHeader, Card, ErrorText, PrimaryButton } from "@/components/ui";
+import { AppHeader, Card, CopyButton, ErrorText, PageIntro, PrimaryButton } from "@/components/ui";
 import { api, apiError } from "@/lib/api";
 import { theme } from "@/theme";
 
@@ -34,12 +34,7 @@ export default function StudentQrScreen() {
       <AppHeader title="Your QR" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Show this to the driver</Text>
-          <Text style={styles.subtitle}>
-            Same code works until you rotate it. RFID will use the same wallet.
-          </Text>
-        </View>
+        <PageIntro title="Show this code" subtitle="Hold it up for the driver. Then tell them your PIN." />
 
         <Card style={styles.qrCard}>
           {loading ? (
@@ -67,6 +62,7 @@ export default function StudentQrScreen() {
               <Text style={styles.payloadText} selectable>
                 {payload}
               </Text>
+              <CopyButton value={payload} label="Copy code" />
             </View>
           )}
         </Card>

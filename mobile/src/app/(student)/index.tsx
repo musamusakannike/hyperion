@@ -8,15 +8,15 @@ import {
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppHeader, Card } from "@/components/ui";
-import { BusIcon, CopyIcon, FundIcon, ProfileIcon, StarIcon } from "@/components/icons";
+import { AppHeader, Card, CopyButton } from "@/components/ui";
+import { BusIcon, FundIcon, ProfileIcon, StarIcon } from "@/components/icons";
 import { RideRow } from "@/components/ride-row";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 import type { Trip } from "@/lib/types";
 import { theme } from "@/theme";
+import { tap } from "@/lib/haptics";
 
 export default function StudentHomeScreen() {
   const insets = useSafeAreaInsets();
@@ -25,7 +25,6 @@ export default function StudentHomeScreen() {
 
   const [trips, setTrips] = useState<Trip[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [updated, setUpdated] = useState("just now");
 
   const loadTrips = useCallback(async () => {
@@ -53,15 +52,7 @@ export default function StudentHomeScreen() {
     return () => clearInterval(id);
   }, [loadTrips]);
 
-  const copyAccount = async () => {
-    const acct = user?.dedicatedAccount?.accountNumber;
-    if (!acct) return;
-    await Clipboard.setStringAsync(acct);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const account = user?.dedicatedAccount?.accountNumber || "Pending account";
+  const account = user?.dedicatedAccount?.accountNumber;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -75,18 +66,13 @@ export default function StudentHomeScreen() {
         <View style={styles.heroCard}>
           <View style={styles.heroEyebrowRow}>
             <StarIcon size={16} color={theme.colors.accent} />
-            <Text style={styles.heroEyebrow}>Ride Points · {account}</Text>
-            {user?.dedicatedAccount?.accountNumber ? (
-              <TouchableOpacity activeOpacity={0.7} onPress={copyAccount} style={styles.copyBtn}>
-                <CopyIcon size={14} color={theme.colors.muted} />
-              </TouchableOpacity>
-            ) : null}
+            <Text style={styles.heroEyebrow}>Your ride points</Text>
           </View>
-          {copied ? <Text style={styles.copiedText}>Account copied to clipboard</Text> : null}
+          {account ? <CopyButton value={account} label="Copy bank account" /> : null}
 
           <View style={styles.pointsRow}>
             <Text style={styles.pointsNumber}>{(user?.ridePoints ?? 0).toLocaleString()}</Text>
-            <Text style={styles.pointsUnit}>PTS</Text>
+            <Text style={styles.pointsUnit}>rides left</Text>
           </View>
 
           <Text style={styles.updatedText}>Last updated {updated}</Text>
@@ -94,17 +80,20 @@ export default function StudentHomeScreen() {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>Do this next</Text>
           <View style={styles.quickGrid}>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => router.push("/(student)/qr" as any)}
+              onPress={() => {
+                void tap();
+                router.push("/(student)/qr" as any);
+              }}
               style={styles.quickActionItem}
             >
               <View style={styles.quickIconBox}>
                 <BusIcon size={32} color={theme.colors.accent} />
               </View>
-              <Text style={styles.quickLabel}>RIDE</Text>
+              <Text style={styles.quickLabel}>Show QR</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -115,7 +104,7 @@ export default function StudentHomeScreen() {
               <View style={styles.quickIconBox}>
                 <FundIcon size={32} color={theme.colors.accent} />
               </View>
-              <Text style={styles.quickLabel}>FUND</Text>
+              <Text style={styles.quickLabel}>Buy rides</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -126,7 +115,7 @@ export default function StudentHomeScreen() {
               <View style={styles.quickIconBox}>
                 <ProfileIcon size={32} color={theme.colors.accent} />
               </View>
-              <Text style={styles.quickLabel}>PROFILE</Text>
+              <Text style={styles.quickLabel}>My PIN</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -137,9 +126,9 @@ export default function StudentHomeScreen() {
             <BusIcon size={26} color={theme.colors.accent} />
           </View>
           <View style={styles.promoTextCol}>
-            <Text style={styles.promoHeading}>Ride more. Save more. 😎</Text>
+            <Text style={styles.promoHeading}>How it works</Text>
             <Text style={styles.promoDescription}>
-              Transfer ₦250 to your Hyperion account to earn one ride point.
+              1 point = 1 bus ride. Buy points, show your QR, tell the driver your PIN.
             </Text>
           </View>
         </View>
@@ -148,7 +137,7 @@ export default function StudentHomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleWithDot}>
-              <Text style={styles.sectionTitle}>Past Rides</Text>
+              <Text style={styles.sectionTitle}>Recent rides</Text>
               <View style={styles.blueDot} />
             </View>
             <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/(student)/rides" as any)}>
@@ -158,7 +147,7 @@ export default function StudentHomeScreen() {
 
           <Card style={styles.ridesCard}>
             {trips.length === 0 ? (
-              <Text style={styles.emptyRidesText}>No rides yet. Show your QR at the gate.</Text>
+              <Text style={styles.emptyRidesText}>No rides yet. Show your QR at the bus.</Text>
             ) : (
               trips
                 .slice(0, 6)

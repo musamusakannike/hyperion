@@ -6,14 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import * as WebBrowser from "expo-web-browser";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppHeader, Card, ErrorText, Field, PrimaryButton } from "@/components/ui";
-import { CopyIcon } from "@/components/icons";
+import { AppHeader, Card, CopyButton, ErrorText, Field, PageIntro, PrimaryButton } from "@/components/ui";
+
 import { useAuth } from "@/lib/auth-context";
 import { api, apiError } from "@/lib/api";
 import { theme } from "@/theme";
@@ -38,7 +36,7 @@ export default function StudentFundScreen() {
   const [amountNaira, setAmountNaira] = useState("250");
   const [paymentError, setPaymentError] = useState("");
   const [isStartingPayment, setIsStartingPayment] = useState(false);
-  const [copiedKey, setCopiedKey] = useState("");
+
 
   const loadWallet = useCallback(async () => {
     try {
@@ -60,13 +58,6 @@ export default function StudentFundScreen() {
   }, [loadWallet]);
 
   const acct = wallet?.dedicatedAccount ?? user?.dedicatedAccount;
-
-  const copy = async (value?: string, key?: string) => {
-    if (!value) return;
-    await Clipboard.setStringAsync(value);
-    setCopiedKey(key ?? "ok");
-    setTimeout(() => setCopiedKey(""), 2000);
-  };
 
   const startPayment = async () => {
     const amount = Number(amountNaira);
@@ -112,22 +103,23 @@ export default function StudentFundScreen() {
       >
         {/* Balance Card */}
         <Card style={styles.card}>
-          <Text style={styles.cardEyebrow}>BALANCE</Text>
+          <PageIntro title="Buy more rides" subtitle="Each ₦250 gives you 1 ride." />
+          <Text style={styles.cardEyebrow}>YOU HAVE</Text>
           <View style={styles.balanceRow}>
             <Text style={styles.balanceNumber}>{points}</Text>
-            <Text style={styles.balanceUnit}>PTS</Text>
+            <Text style={styles.balanceUnit}>rides left</Text>
           </View>
           <Text style={styles.balanceRate}>
-            ₦{(priceKobo / 100).toFixed(0)} = 1 point
+            ₦{(priceKobo / 100).toFixed(0)} = 1 ride
             {leftoverKobo > 0 ? ` · leftover ₦${(leftoverKobo / 100).toFixed(0)}` : ""}
           </Text>
         </Card>
 
         {/* Pay Online Card */}
         <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Pay online</Text>
+          <Text style={styles.cardTitle}>Pay with card or bank</Text>
           <Text style={styles.cardSubtitle}>
-            Pay by card, bank transfer, or any payment method available in Paystack.
+            We open a secure Paystack page. Points show up after payment succeeds.
           </Text>
 
           <Field
@@ -146,20 +138,16 @@ export default function StudentFundScreen() {
             disabled={isStartingPayment}
             style={styles.paystackBtn}
           >
-            {isStartingPayment ? "Opening Paystack…" : "Continue to Paystack"}
+            {isStartingPayment ? "Opening…" : "Pay"}
           </PrimaryButton>
 
-          <Text style={styles.disclaimerText}>
-            Your points are added only after Paystack sends a successful-payment webhook.
-          </Text>
+          <Text style={styles.disclaimerText}>Points appear after the payment goes through.</Text>
         </Card>
 
         {/* Dedicated Account Card */}
         <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Paystack account</Text>
-          <Text style={styles.cardSubtitle}>
-            Transfer from any bank app. Points land after Paystack confirms the credit.
-          </Text>
+          <Text style={styles.cardTitle}>Send money to this account</Text>
+          <Text style={styles.cardSubtitle}>Use any bank app. Points appear after the bank confirms.</Text>
 
           {[
             { label: "BANK", value: acct?.bankName || "Not issued yet", copyable: false },
@@ -176,27 +164,14 @@ export default function StudentFundScreen() {
                 <Text style={styles.accountLabel}>{item.label}</Text>
                 <Text style={styles.accountValue}>{item.value}</Text>
               </View>
-              {item.copyable ? (
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => copy(item.value, item.key)}
-                  style={styles.copyAccountBtn}
-                >
-                  <CopyIcon size={16} color={theme.colors.muted} />
-                </TouchableOpacity>
-              ) : null}
+              {item.copyable ? <CopyButton value={item.value} /> : null}
             </View>
           ))}
-
-          {copiedKey === "nuban" ? (
-            <Text style={styles.copiedSuccessText}>Account number copied</Text>
-          ) : null}
 
           {!acct?.accountNumber ? (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                No dedicated account yet (Paystack test keys often skip this). Ask an admin to add
-                points for the demo.
+                No bank account yet. Ask staff to add points for you.
               </Text>
             </View>
           ) : null}
@@ -206,7 +181,7 @@ export default function StudentFundScreen() {
             onPress={onRefresh}
             style={styles.refreshBalanceBtn}
           >
-            Refresh balance
+            Check my points
           </PrimaryButton>
         </Card>
       </ScrollView>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Guard } from "@/components/guard";
 import { AppShell, studentTabs } from "@/components/shell";
-import { Card, ErrorText, Field, PrimaryButton } from "@/components/ui";
+import { Card, CopyButton, ErrorText, Field, PageIntro, PrimaryButton, SuccessText } from "@/components/ui";
 import { api, apiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -20,7 +20,7 @@ function ProfileInner() {
     setMsg("");
     try {
       await api.post("/api/auth/pin", { currentPin, newPin });
-      setMsg("PIN updated");
+      setMsg("PIN saved");
       setCurrentPin("");
       setNewPin("");
     } catch (err) {
@@ -29,27 +29,34 @@ function ProfileInner() {
   };
 
   return (
-    <AppShell tabs={studentTabs} title="Profile">
+    <AppShell tabs={studentTabs} title="Me">
       <div className="col-span-12 mx-auto w-full max-w-lg space-y-4">
+        <PageIntro title="Your profile" subtitle="Keep your PIN private. Drivers will ask for it." />
         <Card className="space-y-2 p-5">
-          <h2 className="text-lg font-semibold text-slate-900">{user?.fullName}</h2>
-          <p className="text-sm text-slate-500">{user?.email}</p>
-          <p className="text-sm text-slate-500">Matric · {user?.matricNumber}</p>
-          <p className="text-sm text-slate-500">{user?.hasRfid ? "RFID card bound" : "No RFID card yet"}</p>
+          <h2 className="text-lg font-black text-slate-900">{user?.fullName}</h2>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-slate-500">{user?.email}</p>
+            <CopyButton value={user?.email} />
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-slate-500">Matric · {user?.matricNumber}</p>
+            <CopyButton value={user?.matricNumber ?? undefined} />
+          </div>
+          <p className="text-sm font-bold text-slate-500">{user?.hasRfid ? "Bus card linked" : "No bus card yet"}</p>
         </Card>
         <Card className="p-5">
-          <h3 className="font-semibold text-slate-900">Change ride PIN</h3>
+          <h3 className="font-black text-slate-900">Change ride PIN</h3>
           <form className="mt-4 space-y-3" onSubmit={savePin}>
-            <Field id="currentPin" label="Current PIN" value={currentPin} onChange={(e) => setCurrentPin(e.target.value)} />
-            <Field id="newPin" label="New PIN" value={newPin} onChange={(e) => setNewPin(e.target.value)} />
+            <Field id="currentPin" label="Old PIN" value={currentPin} onChange={(e) => setCurrentPin(e.target.value)} />
+            <Field id="newPin" label="New PIN" hint="4–6 numbers" value={newPin} onChange={(e) => setNewPin(e.target.value)} />
             <ErrorText>{error}</ErrorText>
-            {msg ? <p className="text-sm text-emerald-600">{msg}</p> : null}
-            <PrimaryButton type="submit">Update PIN</PrimaryButton>
+            <SuccessText>{msg}</SuccessText>
+            <PrimaryButton type="submit">Save PIN</PrimaryButton>
           </form>
         </Card>
-        <button type="button" onClick={logout} className="w-full rounded-xl border border-slate-200 py-3 text-sm text-slate-700 hover:bg-slate-50 transition">
+        <PrimaryButton type="button" variant="ghost" onClick={logout}>
           Sign out
-        </button>
+        </PrimaryButton>
       </div>
     </AppShell>
   );

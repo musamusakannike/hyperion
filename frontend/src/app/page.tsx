@@ -17,6 +17,6 @@ export default function Home() {
   }, [user, loading, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-app text-slate-500">Opening Hyperion…</div>
+    <div className="flex min-h-screen items-center justify-center bg-app font-extrabold text-blue-600">Opening Hyperion…</div>
   );
 }

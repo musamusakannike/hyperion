@@ -59,14 +59,14 @@ export default function StudentLayout() {
       <Tabs.Screen
         name="fund"
         options={{
-          title: "Fund",
+          title: "Add rides",
           tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={CreditCardIcon} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "More",
+          title: "Me",
           tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={MoreHorizontalIcon} />,
         }}
       />

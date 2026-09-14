@@ -67,9 +67,9 @@ export default function RegisterScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.headerSection}>
-          <Text style={styles.title}>CREATE ACCOUNT</Text>
+          <Text style={styles.title}>Join Hyperion</Text>
           <Text style={styles.caption}>
-            Students only. Drivers and admins are created by Hyperion staff.
+            Students can sign up here. Drivers and admins are added by staff.
           </Text>
         </View>
 

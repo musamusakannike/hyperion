@@ -46,28 +46,28 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="trips"
         options={{
-          title: "Trips",
+          title: "Rides",
           tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={ListIcon} />,
         }}
       />
+      <Tabs.Screen name="students" options={{ href: null, title: "Add student" }} />
+      <Tabs.Screen name="drivers" options={{ href: null, title: "Add driver" }} />
+      <Tabs.Screen name="cards" options={{ href: null, title: "Cards" }} />
+      <Tabs.Screen name="devices" options={{ href: null, title: "Keys" }} />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: theme.colors.bg,
+    backgroundColor: theme.colors.white,
     borderTopColor: theme.colors.border,
     borderTopWidth: 1,
     height: 64,
     paddingBottom: 8,
     paddingTop: 6,
   },
-  tabBarLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    marginTop: 2,
-  },
+  tabBarLabel: { fontSize: 11, fontWeight: "800", marginTop: 2 },
   iconWrapper: {
     paddingHorizontal: 14,
     paddingVertical: 3,
@@ -75,7 +75,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  iconWrapperActive: {
-    backgroundColor: theme.colors.accent,
-  },
+  iconWrapperActive: { backgroundColor: theme.colors.accent },
 });

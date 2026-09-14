@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Notifications from "expo-notifications";
-import { AppHeader, Card, ErrorText, Field, PrimaryButton, StatusBadge } from "@/components/ui";
+import { AppHeader, Card, CopyButton, ErrorText, Field, PageIntro, PrimaryButton, StatusBadge } from "@/components/ui";
 import { KeyIcon, LockIcon } from "@/components/icons";
 import { useAuth } from "@/lib/auth-context";
 import { api, apiError } from "@/lib/api";
@@ -120,14 +120,21 @@ export default function StudentProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {/* User Card */}
+        <PageIntro title="Your profile" subtitle="Keep your PIN private. Drivers will ask for it." />
         <Card style={styles.card}>
           <Text style={styles.userName}>{user?.fullName}</Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
-          <Text style={styles.userMeta}>Matric · {user?.matricNumber || "N/A"}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text style={styles.userEmail}>{user?.email}</Text>
+            <CopyButton value={user?.email} />
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <Text style={styles.userMeta}>Matric · {user?.matricNumber || "N/A"}</Text>
+            <CopyButton value={user?.matricNumber ?? undefined} />
+          </View>
           <View style={styles.badgeRow}>
             <StatusBadge
               ok={!!user?.hasRfid}
-              label={user?.hasRfid ? "RFID card bound" : "No RFID card yet"}
+              label={user?.hasRfid ? "Bus card linked" : "No bus card yet"}
             />
           </View>
         </Card>

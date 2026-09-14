@@ -19,7 +19,7 @@ export function RideRow({ trip, index = 0, perspective }: { trip: Trip; index?: 
       : perspective === "admin"
         ? `${nameOf(trip.studentId)} · ${nameOf(trip.driverId)}`
         : "Campus shuttle";
-  const subtitle = `${trip.method.toUpperCase()} · ${trip.farePoints} pt`;
+  const subtitle = `${trip.method === "qr" ? "QR" : "Card"} · ${trip.farePoints} ride`;
 
   return (
     <article className="flex items-center justify-between p-3.5 transition hover:bg-slate-50">
@@ -39,10 +39,10 @@ export function RideRow({ trip, index = 0, perspective }: { trip: Trip; index?: 
         </div>
       </div>
       <div className="flex flex-col items-end text-right">
-        <span className={`text-sm font-semibold ${trip.status === "success" ? "text-rose-600" : "text-slate-400"}`}>
-          {trip.status === "success" ? `-${trip.farePoints} PTS` : "—"}
+        <span className={`text-sm font-extrabold ${trip.status === "success" ? "text-blue-600" : "text-slate-400"}`}>
+          {trip.status === "success" ? `-${trip.farePoints} ride` : "—"}
         </span>
-        <StatusBadge ok={trip.status === "success"} label={trip.status === "success" ? "Completed" : trip.failReason ?? "Failed"} />
+        <StatusBadge ok={trip.status === "success"} label={trip.status === "success" ? "Done" : trip.failReason ?? "Failed"} />
       </div>
     </article>
   );

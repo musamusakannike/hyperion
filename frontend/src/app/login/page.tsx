@@ -22,21 +22,20 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(apiError(err, "Could not sign in"));
+      setError(apiError(err, "Wrong email or password"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-app text-slate-900">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-6 pb-8 pt-10 lg:max-w-lg">
+    <div className="flex min-h-screen flex-col bg-app">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-6 pb-8 pt-10">
         <main className="flex flex-1 flex-col justify-center py-4">
-          <section className="mb-8 mt-2 flex flex-col items-center text-center">
+          <section className="mb-8 flex flex-col items-center text-center animate-pop">
             <Avatar name="H" size="lg" />
-            <h1 className="mt-6 text-2xl font-black uppercase tracking-tight sm:text-[28px]">Welcome back</h1>
-            <p className="mt-3 text-base font-medium sm:text-lg">Hyperion ride points</p>
-            <p className="mt-1 text-xs text-muted sm:text-sm">Sign in to your student, driver, or admin account</p>
+            <h1 className="mt-6 text-3xl font-black text-slate-900">Hi again!</h1>
+            <p className="mt-2 text-base font-bold text-slate-600">Log in to ride the campus bus.</p>
           </section>
 
           <form className="space-y-4" onSubmit={onSubmit}>
@@ -44,7 +43,7 @@ export default function LoginPage() {
               id="email"
               label="Email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="you@school.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -54,7 +53,7 @@ export default function LoginPage() {
               id="password"
               label="Password"
               type={show ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -68,21 +67,21 @@ export default function LoginPage() {
             <ErrorText>{error}</ErrorText>
             <div className="pt-2">
               <PrimaryButton type="submit" disabled={busy}>
-                {busy ? "Signing in…" : "Sign In"}
+                {busy ? "Please wait…" : "Let’s go"}
               </PrimaryButton>
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-muted sm:text-sm">
-            Don&apos;t have an account?
-            <Link href="/register" className="ml-1 font-medium text-blue-600 hover:underline">
-              Sign up
+          <p className="mt-6 text-center text-sm font-bold text-slate-500">
+            New here?
+            <Link href="/register" className="ml-1 font-extrabold text-blue-600">
+              Make an account
             </Link>
           </p>
         </main>
-        <footer className="mb-2 mt-8 flex items-center justify-center space-x-1.5 text-xs text-muted">
+        <footer className="mt-8 flex items-center justify-center gap-1.5 text-xs font-bold text-slate-400">
           <FiShield className="h-4 w-4" />
-          <span>Secure login protected by Hyperion</span>
+          <span>Safe login</span>
         </footer>
       </div>
     </div>

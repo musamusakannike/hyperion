@@ -1,33 +1,35 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-app: #ffffff;
+  --color-app: #f7f9fc;
   --color-card: #ffffff;
-  --color-card-hover: #f1f5f9;
+  --color-card-hover: #eef4fb;
   --color-accent: #2563eb;
   --color-accent-hover: #1d4ed8;
   --color-accent-hi: #3b82f6;
+  --color-accent-shadow: #1e40af;
   --color-app-purple: #2563eb;
   --color-app-banner: #dbeafe;
-  --color-app-green: #16a34a;
+  --color-app-green: #58cc02;
   --color-app-red: #dc2626;
   --color-muted: #64748b;
   --color-input: #ffffff;
   --color-input-border: #cbd5e1;
-  --font-sans: var(--font-space-grotesk);
+  --font-sans: var(--font-nunito);
 }
 
 html,
 body {
-  background: #ffffff;
+  background: #f7f9fc;
   color: #0f172a;
-  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 input,
 button,
-textarea {
+textarea,
+select {
   font-family: inherit;
 }
 
@@ -37,4 +39,19 @@ textarea {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pop {
+  animation: pop-in 0.28s ease-out;
 }

@@ -14,6 +14,7 @@ import * as Crypto from "expo-crypto";
 import { AppHeader, Card, ErrorText, Field, PrimaryButton } from "@/components/ui";
 import { CameraIcon, KeyIcon } from "@/components/icons";
 import { api, apiError } from "@/lib/api";
+import { errorHaptic, successHaptic } from "@/lib/haptics";
 import type { ScanResult } from "@/lib/types";
 import { theme } from "@/theme";
 
@@ -58,6 +59,9 @@ export default function DriverScanScreen() {
       if (response.data.ok) {
         setToken("");
         setPin("");
+        await successHaptic();
+      } else {
+        await errorHaptic();
       }
     } catch (err) {
       setError(apiError(err, "Charge request failed"));
@@ -102,10 +106,8 @@ export default function DriverScanScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Scan a ride</Text>
-          <Text style={styles.cardSubtitle}>
-            Ask for the student PIN, then scan their QR or type an RFID UID.
-          </Text>
+          <Text style={styles.cardTitle}>Take a fare</Text>
+          <Text style={styles.cardSubtitle}>Ask for the PIN first. Then scan the QR or type the card number.</Text>
 
           <Field
             label="Student PIN"
@@ -131,7 +133,7 @@ export default function DriverScanScreen() {
                   style={[styles.methodBtn, active && styles.methodBtnActive]}
                 >
                   <Text style={[styles.methodBtnText, active && styles.methodBtnTextActive]}>
-                    {m.toUpperCase()}
+                    {m === "qr" ? "QR code" : "Card"}
                   </Text>
                 </TouchableOpacity>
               );
@@ -153,7 +155,7 @@ export default function DriverScanScreen() {
             disabled={busy || !token || !pin}
             style={styles.chargeBtn}
           >
-            {busy ? "Checking…" : "Charge 1 point"}
+            {busy ? "Checking…" : "Take 1 ride"}
           </PrimaryButton>
 
           {/* Camera Button */}
@@ -197,14 +199,14 @@ export default function DriverScanScreen() {
             ]}
           >
             <Text style={[styles.resultTitle, result.ok ? styles.resultTextSuccess : styles.resultTextError]}>
-              {result.ok ? "Ride recorded" : "Scan failed"}
+              {result.ok ? "Nice! Ride saved" : "Didn’t work"}
             </Text>
             <Text style={styles.resultMessage}>{result.message}</Text>
             {result.studentName ? (
               <Text style={styles.resultStudent}>{result.studentName}</Text>
             ) : null}
             {typeof result.remainingPoints === "number" ? (
-              <Text style={styles.resultPoints}>{result.remainingPoints} pts left</Text>
+              <Text style={styles.resultPoints}>{result.remainingPoints} rides left</Text>
             ) : null}
           </Card>
         ) : null}

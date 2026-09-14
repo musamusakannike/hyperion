@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppHeader, Card } from "@/components/ui";
+import { AppHeader, Card, PageIntro } from "@/components/ui";
 import { RideRow } from "@/components/ride-row";
 import { api } from "@/lib/api";
 import type { Trip } from "@/lib/types";
@@ -45,6 +45,7 @@ export default function StudentRidesScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        <PageIntro title="Your rides" subtitle="Every time you boarded the campus bus." />
         <Card style={styles.card}>
           {trips.length === 0 ? (
             <Text style={styles.emptyText}>No rides yet.</Text>
