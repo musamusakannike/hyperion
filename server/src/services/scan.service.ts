@@ -8,7 +8,8 @@ import { AppError } from "../utils/app-error";
 import { normalizeRfidUid, normalizeScanToken, verifySecret } from "../utils/crypto";
 
 type ScanInput = {
-  driverId: string;
+  actorId: string;
+  actorRole: "student" | "driver";
   method: ScanMethod;
   token: string;
   pin?: string;
@@ -24,39 +25,69 @@ export type ScanResult = {
   tripId?: string;
 };
 
+const replayResult = async (prior: { _id: unknown; status: string; failReason?: string | null; studentId: Types.ObjectId }): Promise<ScanResult> => {
+  const student = await User.findById(prior.studentId);
+  if (prior.status === "success") {
+    return {
+      ok: true,
+      message: "Ride already recorded",
+      studentName: student?.fullName,
+      remainingPoints: student?.ridePoints,
+      tripId: String(prior._id),
+    };
+  }
+  return {
+    ok: false,
+    code: prior.failReason ?? undefined,
+    message: "This scan was already recorded as failed",
+  };
+};
+
 export const performScan = async (input: ScanInput): Promise<ScanResult> => {
-  if (input.requestId) {
-    const prior = await Trip.findOne({ driverId: input.driverId, requestId: input.requestId });
-    if (prior) {
-      const student = await User.findById(prior.studentId);
-      if (prior.status === "success") {
-        return {
-          ok: true,
-          message: "Ride already recorded",
-          studentName: student?.fullName,
-          remainingPoints: student?.ridePoints,
-          tripId: String(prior._id),
-        };
-      }
-      return {
-        ok: false,
-        code: prior.failReason ?? undefined,
-        message: "This scan was already recorded as failed",
-      };
+  if (input.method === "qr") {
+    if (input.actorRole !== "student") {
+      throw new AppError("Students scan the driver QR to board", 403, "FORBIDDEN");
     }
+  } else if (input.actorRole !== "driver") {
+    throw new AppError("Only a driver or bus reader can take a card tap", 403, "FORBIDDEN");
   }
 
-  const token =
-    input.method === "rfid" ? normalizeRfidUid(input.token) : normalizeScanToken(input.token);
-  const studentQuery =
-    input.method === "rfid" ? { rfidUid: token, role: "student" as const } : { qrToken: token, role: "student" as const };
+  const driverId = input.method === "qr" ? undefined : input.actorId;
+  const studentIdForReplay = input.method === "qr" ? input.actorId : undefined;
 
-  const student = await User.findOne(studentQuery).select("+pinHash +qrToken");
+  if (input.requestId) {
+    const prior = await Trip.findOne(
+      studentIdForReplay
+        ? { studentId: studentIdForReplay, requestId: input.requestId }
+        : { driverId, requestId: input.requestId },
+    );
+    if (prior) return replayResult(prior);
+  }
+
+  let student;
+  let driverIdResolved: Types.ObjectId | string;
+
+  if (input.method === "qr") {
+    const token = normalizeScanToken(input.token);
+    const driver = await User.findOne({ qrToken: token, role: "driver" }).select("+qrToken");
+    if (!driver || !driver.isActive) {
+      throw new AppError("Unknown QR code", 404, "UNKNOWN_QR");
+    }
+    student = await User.findById(input.actorId).select("+pinHash");
+    if (!student || student.role !== "student" || !student.isActive) {
+      throw new AppError("Student account is not active", 403, "FORBIDDEN");
+    }
+    driverIdResolved = driver._id;
+  } else {
+    const token = normalizeRfidUid(input.token);
+    student = await User.findOne({ rfidUid: token, role: "student" }).select("+pinHash");
+    driverIdResolved = input.actorId;
+  }
 
   const fail = async (code: string, message: string, studentId: Types.ObjectId) => {
     const trip = await Trip.create({
       studentId,
-      driverId: input.driverId,
+      driverId: driverIdResolved,
       farePoints: 1,
       fareKobo: env.ridePriceKobo,
       method: input.method,
@@ -75,10 +106,10 @@ export const performScan = async (input: ScanInput): Promise<ScanResult> => {
   };
 
   if (!student || !student.isActive) {
-    throw new AppError("Unknown card or QR code", 404, "UNKNOWN_CARD");
+    throw new AppError(input.method === "qr" ? "Unknown QR code" : "Unknown card or QR code", 404, "UNKNOWN_CARD");
   }
 
-  if (env.scanPinRequired) {
+  if (input.method === "rfid" && env.scanPinRequired) {
     if (!input.pin || !student.pinHash || !(await verifySecret(input.pin, student.pinHash))) {
       return fail("BAD_PIN", "Incorrect PIN", student._id);
     }
@@ -96,7 +127,7 @@ export const performScan = async (input: ScanInput): Promise<ScanResult> => {
 
   const trip = await Trip.create({
     studentId: student._id,
-    driverId: input.driverId,
+    driverId: driverIdResolved,
     farePoints: 1,
     fareKobo: env.ridePriceKobo,
     method: input.method,

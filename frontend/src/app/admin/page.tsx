@@ -23,7 +23,7 @@ function Inner() {
   const actions = [
     { href: "/admin/people", label: "See people", hint: "Search, add points", icon: FiUsers },
     { href: "/admin/students", label: "Add student", hint: "New rider account", icon: FiPlus },
-    { href: "/admin/drivers", label: "Add driver", hint: "New scanner account", icon: FiTruck },
+    { href: "/admin/drivers", label: "Add driver", hint: "New boarding QR account", icon: FiTruck },
     { href: "/admin/cards", label: "Link a card", hint: "Match RFID to a student", icon: FiCreditCard },
     { href: "/admin/devices", label: "Bus keys", hint: "Give a scanner its password", icon: FiKey },
     { href: "/admin/trips", label: "Ride log", hint: "Who boarded today", icon: FiTruck },
@@ -61,7 +61,7 @@ function Inner() {
       <div className="col-span-12 mt-4 rounded-3xl border-2 border-blue-100 bg-blue-50 p-5">
         <h3 className="font-black text-blue-900">Quick demo</h3>
         <p className="mt-1 text-sm font-semibold text-blue-800/80">
-          Give a student some points. Open their QR on one phone. Scan it as a driver on another phone.
+          Give a student some points. Open the driver QR on one phone. Scan it as a student on another phone.
         </p>
       </div>
     </AppShell>

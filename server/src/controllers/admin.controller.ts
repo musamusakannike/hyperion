@@ -61,7 +61,6 @@ export const createStudent: RequestHandler = async (request, response, next) => 
       fullName,
       matricNumber: matricNumber.toUpperCase(),
       pinHash: await hashSecret(pin),
-      qrToken: randomToken(),
       paystackCustomerCode: paystack?.customerCode,
       dedicatedAccount: paystack?.dedicatedAccount,
     });
@@ -82,6 +81,7 @@ export const createDriver: RequestHandler = async (request, response, next) => {
       email,
       passwordHash: await hashSecret(password),
       fullName,
+      qrToken: randomToken(),
     });
     response.status(201).json({ user: await User.findById(user._id).select(studentSelect) });
   } catch (error) {
@@ -162,11 +162,11 @@ export const rotateQr: RequestHandler = async (request, response, next) => {
       { qrToken: randomToken() },
       { new: true },
     ).select(studentSelect);
-    if (!user) throw new AppError("Student not found", 404);
+    if (!user || user.role !== "driver") throw new AppError("Driver not found", 404);
 
     void notifyQrRotated(user.id);
 
-    response.json({ message: "QR token rotated. Student must open the app again to see the new code." });
+    response.json({ message: "QR token rotated. Driver must open the app again to see the new code." });
   } catch (error) {
     next(error);
   }

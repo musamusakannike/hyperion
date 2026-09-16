@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.config";
 import { DriverDevice } from "../models/driver-device.model";
@@ -36,28 +36,54 @@ export const requireRole =
     next();
   };
 
+/** JWT (student or driver) or X-Device-Key for a headless RFID reader. */
+export const requireScanCaller: RequestHandler = async (request, _response, next) => {
+  try {
+    const deviceKey = request.header("x-device-key");
+    if (deviceKey) {
+      await attachDriverFromDeviceKey(request, deviceKey);
+      next();
+      return;
+    }
+
+    const header = request.headers.authorization;
+    if (!header?.startsWith("Bearer ")) {
+      throw new AppError("Authentication required", 401, "UNAUTHENTICATED");
+    }
+    const payload = jwt.verify(header.slice(7), env.jwtSecret) as JwtPayload;
+    request.user = { id: payload.sub, role: payload.role };
+    if (payload.role === "driver") request.driverId = payload.sub;
+    next();
+  } catch (error) {
+    next(error instanceof AppError ? error : new AppError("Invalid or expired token", 401, "UNAUTHENTICATED"));
+  }
+};
+
+const attachDriverFromDeviceKey = async (request: Request, deviceKey: string) => {
+  const prefix = deviceKey.slice(0, 8);
+  const devices = await DriverDevice.find({ apiKeyPrefix: prefix, isActive: true }).select("+apiKeyHash driverId");
+  for (const device of devices) {
+    if (await verifySecret(deviceKey, device.apiKeyHash)) {
+      const driver = await User.findById(device.driverId);
+      if (!driver || driver.role !== "driver" || !driver.isActive) {
+        throw new AppError("Driver for this device is inactive", 403, "FORBIDDEN");
+      }
+      request.user = { id: driver.id, role: "driver" };
+      request.driverId = driver.id;
+      return;
+    }
+  }
+  throw new AppError("Invalid device key", 401, "UNAUTHENTICATED");
+};
+
 /** Driver JWT, or X-Device-Key for a headless RFID reader bound to a driver. */
 export const requireDriver: RequestHandler = async (request, _response, next) => {
   try {
     const deviceKey = request.header("x-device-key");
     if (deviceKey) {
-      const prefix = deviceKey.slice(0, 8);
-      const devices = await DriverDevice.find({ apiKeyPrefix: prefix, isActive: true }).select(
-        "+apiKeyHash driverId",
-      );
-      for (const device of devices) {
-        if (await verifySecret(deviceKey, device.apiKeyHash)) {
-          const driver = await User.findById(device.driverId);
-          if (!driver || driver.role !== "driver" || !driver.isActive) {
-            throw new AppError("Driver for this device is inactive", 403, "FORBIDDEN");
-          }
-          request.user = { id: driver.id, role: "driver" };
-          request.driverId = driver.id;
-          next();
-          return;
-        }
-      }
-      throw new AppError("Invalid device key", 401, "UNAUTHENTICATED");
+      await attachDriverFromDeviceKey(request, deviceKey);
+      next();
+      return;
     }
 
     const header = request.headers.authorization;

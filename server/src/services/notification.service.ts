@@ -227,11 +227,11 @@ export const notifyRfidUnbound = async (userId: string) => {
 
 export const notifyQrRotated = async (userId: string) => {
   return sendPushNotification(userId, {
-    title: "Ride QR Code Reset 🔄",
-    body: "Your digital ride QR code has been refreshed for security. Open the app to view your new QR.",
+    title: "Boarding QR Code Reset 🔄",
+    body: "Your driver boarding QR has been refreshed. Open the app to show the new code.",
     data: {
       type: "QR_ROTATED",
-      screen: "/(student)/qr",
+      screen: "/(driver)",
     },
   });
 };

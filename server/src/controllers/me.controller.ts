@@ -47,8 +47,8 @@ export const initializeFunding: RequestHandler = async (request, response, next)
 export const getQr: RequestHandler = async (request, response, next) => {
   try {
     const user = await User.findById(request.user!.id).select("+qrToken");
-    if (!user || user.role !== "student") {
-      throw new AppError("Only students have a ride QR code", 403);
+    if (!user || user.role !== "driver") {
+      throw new AppError("Only drivers have a boarding QR code", 403);
     }
     if (!user.qrToken) {
       user.qrToken = randomToken();

@@ -3,7 +3,7 @@ import { User } from "../models/user.model";
 import { createStudentPaystackAccount } from "../services/paystack.service";
 import { isValidPushToken, notifyPinChanged, sendPushNotification } from "../services/notification.service";
 import { AppError } from "../utils/app-error";
-import { assertPinFormat, hashSecret, randomToken, verifySecret } from "../utils/crypto";
+import { assertPinFormat, hashSecret, verifySecret } from "../utils/crypto";
 import { signAccessToken } from "../utils/jwt";
 
 const publicUser = (user: {
@@ -65,7 +65,6 @@ export const registerStudent: RequestHandler = async (request, response, next) =
       fullName,
       matricNumber: matricNumber.toUpperCase(),
       pinHash: await hashSecret(pin),
-      qrToken: randomToken(),
       paystackCustomerCode: paystack?.customerCode,
       dedicatedAccount: paystack?.dedicatedAccount,
       pushTokens: pushToken && isValidPushToken(pushToken) ? [pushToken] : [],

@@ -21,6 +21,7 @@ const tripSchema = new Schema(
 );
 
 tripSchema.index({ driverId: 1, requestId: 1 }, { unique: true, sparse: true });
+tripSchema.index({ studentId: 1, requestId: 1 }, { unique: true, sparse: true });
 tripSchema.index({ createdAt: -1 });
 
 export type TripDocument = InferSchemaType<typeof tripSchema>;

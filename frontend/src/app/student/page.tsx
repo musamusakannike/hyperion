@@ -53,7 +53,7 @@ function StudentHome() {
           <h2 className="mb-3 text-base font-black text-slate-900">Do this next</h2>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { href: "/student/qr", label: "Show QR", hint: "Board" },
+              { href: "/student/qr", label: "Scan QR", hint: "Board" },
               { href: "/student/fund", label: "Buy rides", hint: "₦250 each" },
               { href: "/student/profile", label: "My PIN", hint: "Keep safe" },
             ].map((item) => (
@@ -73,7 +73,7 @@ function StudentHome() {
         <section className="rounded-3xl border-2 border-blue-100 bg-blue-50 p-4">
           <h3 className="font-black text-blue-900">How it works</h3>
           <p className="mt-1 text-sm font-semibold text-blue-800/80">
-            1 point = 1 bus ride. Buy points, show your QR (or tap your card), and tell the driver your PIN.
+            1 point = 1 bus ride. Buy points, scan the driver’s QR, or tap your card.
           </p>
         </section>
       </div>
@@ -87,7 +87,7 @@ function StudentHome() {
         </div>
         <Card className="divide-y divide-slate-100 overflow-hidden">
           {trips.length === 0 ? (
-            <p className="p-6 text-center text-sm font-bold text-slate-400">No rides yet. Show your QR at the bus.</p>
+            <p className="p-6 text-center text-sm font-bold text-slate-400">No rides yet. Scan the driver QR at the bus.</p>
           ) : (
             trips.slice(0, 5).map((trip, i) => <RideRow key={trip._id} trip={trip} index={i} perspective="student" />)
           )}

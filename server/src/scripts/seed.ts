@@ -26,6 +26,7 @@ const seed = async (): Promise<void> => {
       email: driverEmail,
       passwordHash: await hashSecret("DriverPass1!"),
       fullName: "Demo Driver",
+      qrToken: randomToken(),
     });
     console.info(`Seeded driver ${driverEmail} / DriverPass1!`);
   }
@@ -39,7 +40,6 @@ const seed = async (): Promise<void> => {
       fullName: "Demo Student",
       matricNumber: "20/52HA001",
       pinHash: await hashSecret("1234"),
-      qrToken: randomToken(),
       ridePoints: 5,
       leftoverKobo: 0,
     });

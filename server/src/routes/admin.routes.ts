@@ -27,7 +27,7 @@ adminRouter.patch("/users/:id", updateUser);
 adminRouter.get("/rfid", lookupStudentByRfid);
 adminRouter.post("/students/:id/rfid", bindRfid);
 adminRouter.delete("/students/:id/rfid", unbindRfid);
-adminRouter.post("/students/:id/qr/rotate", rotateQr);
+adminRouter.post("/drivers/:id/qr/rotate", rotateQr);
 adminRouter.post("/students/:id/points", adjustPoints);
 adminRouter.get("/trips", listTrips);
 adminRouter.get("/devices", listDevices);

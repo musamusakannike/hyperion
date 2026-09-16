@@ -2,7 +2,7 @@
 
 SWEP exhibition project (Group H, University of Ilorin): cashless campus bus rides.
 
-Students hold a wallet of **ride points** (₦250 = 1 point). A driver scans the student’s **QR code** (and later an **RFID card**). One successful scan deducts one point. Both QR and RFID hit the same API so they stay in sync.
+Students hold a wallet of **ride points** (₦250 = 1 point). A student scans the driver’s **QR code** (or later taps an **RFID card**). One successful scan deducts one point. Both QR and RFID hit the same API so they stay in sync.
 
 This repository currently ships the **backend only** (`server/`). Next.js and React Native come later.
 
@@ -12,7 +12,7 @@ This repository currently ships the **backend only** (`server/`). Next.js and Re
 - MongoDB + Mongoose
 - JWT auth (`admin` | `driver` | `student`)
 - Paystack dedicated virtual account (permanent NUBAN) for deposits
-- QR now; RFID UID on the same student record later
+- Driver QR now; RFID UID on the same student record later
 
 ## Setup (backend)
 
@@ -49,25 +49,24 @@ curl -s -X POST http://localhost:5000/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"student@hyperion.local","password":"StudentPass1!"}'
 
-# 2. Student QR payload (HYP:<token>)
-curl -s http://localhost:5000/api/me/qr \
-  -H "Authorization: Bearer STUDENT_JWT"
-
-# 3. Driver login
+# 2. Driver login
 curl -s -X POST http://localhost:5000/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"driver@hyperion.local","password":"DriverPass1!"}'
 
-# 4. Driver scans QR (same as RFID later: method=rfid, token=<uid>)
+# 3. Driver boarding QR payload (HYP:<token>)
+curl -s http://localhost:5000/api/me/qr \
+  -H "Authorization: Bearer DRIVER_JWT"
+
+# 4. Student scans driver QR (no PIN)
 curl -s -X POST http://localhost:5000/api/scans \
-  -H "Authorization: Bearer DRIVER_JWT" \
+  -H "Authorization: Bearer STUDENT_JWT" \
   -H 'Content-Type: application/json' \
-  -d '{"method":"qr","token":"HYP:...from step 2...","pin":"1234","requestId":"demo-1"}'
+  -d '{"method":"qr","token":"HYP:...from step 3...","requestId":"demo-1"}'
 ```
 
 Success: `{ "ok": true, "remainingPoints": 4, ... }`  
-No points: `{ "ok": false, "code": "INSUFFICIENT_POINTS" }`  
-Wrong PIN: `{ "ok": false, "code": "BAD_PIN" }`
+No points: `{ "ok": false, "code": "INSUFFICIENT_POINTS" }`
 
 Admin add points (booth backup):
 
@@ -112,14 +111,15 @@ Without Paystack, use admin point adjustments.
 | POST | `/api/auth/pin` | student |
 | GET | `/api/me/wallet` | student |
 | POST | `/api/me/funding/initialize` | student |
-| GET | `/api/me/qr` | student |
+| GET | `/api/me/qr` | driver |
 | GET | `/api/me/trips` | student |
-| POST | `/api/scans` | driver or device key |
+| POST | `/api/scans` | student (QR) or driver/device (RFID) |
 | GET | `/api/scans/trips` | driver |
 | GET | `/api/admin/stats` | admin |
 | GET/PATCH | `/api/admin/users` | admin |
 | POST | `/api/admin/students`, `/drivers` | admin |
 | POST | `/api/admin/students/:id/rfid` | admin |
+| POST | `/api/admin/drivers/:id/qr/rotate` | admin |
 | POST | `/api/admin/students/:id/points` | admin |
 | GET | `/api/admin/trips` | admin |
 | POST | `/api/webhooks/paystack` | Paystack |
@@ -128,10 +128,10 @@ Without Paystack, use admin point adjustments.
 
 1. Confirm Mongo + seed + curl scan locally.
 2. Paystack test webhook (or skip and use admin top-up for the booth).
-3. **Tiny driver scan page** (Next.js or even a single HTML file): camera QR + PIN field → `POST /api/scans`. This is enough to exhibit.
-4. **Student web:** login, account number, QR image (`qrcode` library + `/api/me/qr`), points, history.
+3. **Tiny student scan page** (Next.js): camera on the driver QR → `POST /api/scans` as the student. This is enough to exhibit.
+4. **Driver web:** login, boarding QR image (`qrcode` library + `/api/me/qr`), optional RFID form.
 5. **Admin web:** users, drivers, bind RFID, trips, stats.
-6. **React Native:** student QR + driver scanner.
+6. **React Native:** student scanner + driver QR.
 7. **Hardware:** RC522 / PN532 (or USB reader). Read UID → same scan endpoint. Admin binds UID to matric number.
 8. **Booth:** 3 seeded students with points, 1 driver, live QR debit, admin trip list on a laptop.
 
@@ -139,4 +139,4 @@ Without Paystack, use admin point adjustments.
 
 - Do not commit `.env` or `secrets/`.
 - Change seed passwords before any public deploy.
-- PIN and passwords are bcrypt-hashed. QR tokens can be rotated if a phone is lost.
+- PIN and passwords are bcrypt-hashed. Driver QR tokens can be rotated if a phone is lost.

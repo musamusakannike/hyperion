@@ -20,7 +20,7 @@ export default function AddDriverScreen() {
     >
       <AppHeader title="Add driver" />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <PageIntro title="Add a driver" subtitle="Drivers scan QR codes and cards." />
+        <PageIntro title="Add a driver" subtitle="Students scan the driver QR. Drivers still take card taps." />
         <Card>
           <Field label="Full name" value={form.fullName} onChangeText={(v) => setForm((p) => ({ ...p, fullName: v }))} />
           <Field label="Email" autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(v) => setForm((p) => ({ ...p, email: v }))} />

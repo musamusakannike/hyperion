@@ -118,7 +118,7 @@ export const studentTabs: Tab[] = [
 ];
 
 export const driverTabs: Tab[] = [
-  { href: "/driver", label: "Scan", icon: <FiMaximize className="h-5 w-5" /> },
+  { href: "/driver", label: "QR", icon: <FiMaximize className="h-5 w-5" /> },
   { href: "/driver/trips", label: "Rides", icon: <FiList className="h-5 w-5" /> },
 ];
 

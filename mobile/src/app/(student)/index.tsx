@@ -93,7 +93,7 @@ export default function StudentHomeScreen() {
               <View style={styles.quickIconBox}>
                 <BusIcon size={32} color={theme.colors.accent} />
               </View>
-              <Text style={styles.quickLabel}>Show QR</Text>
+              <Text style={styles.quickLabel}>Scan QR</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -128,7 +128,7 @@ export default function StudentHomeScreen() {
           <View style={styles.promoTextCol}>
             <Text style={styles.promoHeading}>How it works</Text>
             <Text style={styles.promoDescription}>
-              1 point = 1 bus ride. Buy points, show your QR, tell the driver your PIN.
+              1 point = 1 bus ride. Buy points, then scan the driver’s QR (or tap your card).
             </Text>
           </View>
         </View>
@@ -147,7 +147,7 @@ export default function StudentHomeScreen() {
 
           <Card style={styles.ridesCard}>
             {trips.length === 0 ? (
-              <Text style={styles.emptyRidesText}>No rides yet. Show your QR at the bus.</Text>
+              <Text style={styles.emptyRidesText}>No rides yet. Scan the driver QR at the bus.</Text>
             ) : (
               trips
                 .slice(0, 6)

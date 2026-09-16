@@ -32,7 +32,7 @@ export default function DriverLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Scan",
+          title: "QR",
           tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={MaximizeIcon} />,
         }}
       />

@@ -84,7 +84,7 @@ export default function AdminHomeScreen() {
         <View style={styles.boothCard}>
           <Text style={styles.boothTitle}>Quick demo</Text>
           <Text style={styles.boothText}>
-            Give a student points. Open their QR on one phone. Scan it as a driver on another.
+            Give a student points. Open the driver QR on one phone. Scan it as a student on another.
           </Text>
         </View>
       </ScrollView>

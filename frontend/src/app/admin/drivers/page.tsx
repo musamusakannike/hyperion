@@ -31,7 +31,7 @@ function Inner() {
         <Link href="/admin" className="mb-3 inline-block text-sm font-extrabold text-blue-600">
           ← Home
         </Link>
-        <PageIntro title="Add a driver" subtitle="Drivers scan student QR codes or cards." />
+        <PageIntro title="Add a driver" subtitle="Students scan the driver QR. Drivers still take card taps." />
         <Card className="p-5">
           <form className="space-y-3" onSubmit={createDriver}>
             <Field id="df" label="Full name" value={driver.fullName} onChange={(e) => setDriver({ ...driver, fullName: e.target.value })} required />

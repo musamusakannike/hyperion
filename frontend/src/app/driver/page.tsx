@@ -1,32 +1,49 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import { Guard } from "@/components/guard";
 import { AppShell, driverTabs } from "@/components/shell";
-import { Card, ErrorText, Field, PageIntro, PrimaryButton } from "@/components/ui";
+import { Card, CopyButton, ErrorText, Field, PageIntro, PrimaryButton } from "@/components/ui";
 import { api, apiError } from "@/lib/api";
 import type { ScanResult } from "@/lib/types";
 
-function DriverScan() {
+function DriverBoard() {
+  const [src, setSrc] = useState("");
+  const [payload, setPayload] = useState("");
+  const [qrError, setQrError] = useState("");
+
   const [pin, setPin] = useState("");
   const [token, setToken] = useState("");
-  const [method, setMethod] = useState<"qr" | "rfid">("qr");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [camOn, setCamOn] = useState(false);
-  const regionId = "hyperion-qr-reader";
-  const scannerRef = useRef<{ stop: () => Promise<void> } | null>(null);
 
-  const submit = async (scanToken: string, scanMethod: "qr" | "rfid") => {
+  useEffect(() => {
+    api
+      .get<{ payload: string }>("/api/me/qr")
+      .then(async ({ data }) => {
+        setPayload(data.payload);
+        setSrc(
+          await QRCode.toDataURL(data.payload, {
+            margin: 1,
+            width: 360,
+            color: { dark: "#1d4ed8", light: "#ffffff" },
+          }),
+        );
+      })
+      .catch((err) => setQrError(apiError(err)));
+  }, []);
+
+  const submitCard = async () => {
     setBusy(true);
     setError("");
     try {
       const { data } = await api.post<ScanResult>(
         "/api/scans",
         {
-          method: scanMethod,
-          token: scanToken,
+          method: "rfid",
+          token,
           pin,
           requestId: crypto.randomUUID(),
         },
@@ -40,73 +57,33 @@ function DriverScan() {
     }
   };
 
-  useEffect(() => {
-    if (!camOn) return;
-    let cancelled = false;
-    (async () => {
-      const { Html5Qrcode } = await import("html5-qrcode");
-      const scanner = new Html5Qrcode(regionId);
-      scannerRef.current = scanner;
-      try {
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 8, qrbox: { width: 240, height: 240 } },
-          (decoded) => {
-            if (cancelled) return;
-            setToken(decoded);
-            setMethod("qr");
-            void scanner.stop();
-            setCamOn(false);
-            void submit(decoded, "qr");
-          },
-          () => undefined,
-        );
-      } catch (err) {
-        setError(apiError(err, "Camera could not start"));
-        setCamOn(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-      scannerRef.current?.stop().catch(() => undefined);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camOn]);
-
   return (
-    <AppShell tabs={driverTabs} title="Scan">
+    <AppShell tabs={driverTabs} title="Board">
       <div className="col-span-12 mx-auto w-full max-w-lg space-y-4">
-        <PageIntro title="Take a fare" subtitle="Ask for the PIN first. Then scan the QR or type the card number." />
+        <PageIntro title="Show this code" subtitle="Students scan it to board. Use the card form below for RFID taps." />
+        <Card className="p-6 text-center">
+          {src ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt="Driver boarding QR" className="mx-auto w-full max-w-xs rounded-3xl" />
+          ) : (
+            <p className="py-16 font-bold text-slate-400">{qrError || "Loading…"}</p>
+          )}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <p className="max-w-[70%] truncate text-[11px] font-bold text-slate-400">{payload}</p>
+            <CopyButton value={payload} label="Copy code" />
+          </div>
+        </Card>
+
         <Card className="p-5">
+          <p className="text-sm font-extrabold text-slate-900">Take a card fare</p>
+          <p className="mb-3 text-xs font-bold text-slate-400">Ask for the PIN, then type the card number.</p>
           <div className="space-y-3">
             <Field id="pin" label="Student PIN" hint="They tell you this out loud" value={pin} onChange={(e) => setPin(e.target.value)} inputMode="numeric" />
-            <div className="flex gap-2">
-              {(["qr", "rfid"] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMethod(m)}
-                  className={`flex-1 rounded-2xl border-2 border-b-4 py-2 text-sm font-extrabold ${method === m ? "border-blue-700 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-600"}`}
-                >
-                  {m === "qr" ? "QR code" : "Card"}
-                </button>
-              ))}
-            </div>
-            <Field
-              id="token"
-              label={method === "qr" ? "QR code text" : "Card number"}
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder={method === "qr" ? "HYP:…" : "04A3B12C"}
-            />
+            <Field id="token" label="Card number" value={token} onChange={(e) => setToken(e.target.value)} placeholder="04A3B12C" />
             <ErrorText>{error}</ErrorText>
-            <PrimaryButton type="button" disabled={busy || !token || !pin} onClick={() => submit(token, method)}>
+            <PrimaryButton type="button" disabled={busy || !token || !pin} onClick={submitCard}>
               {busy ? "Checking…" : "Take 1 ride"}
             </PrimaryButton>
-            <PrimaryButton type="button" variant="secondary" onClick={() => setCamOn((v) => !v)}>
-              {camOn ? "Stop camera" : "Open camera"}
-            </PrimaryButton>
-            {camOn ? <div id={regionId} className="overflow-hidden rounded-3xl" /> : null}
           </div>
         </Card>
         {result ? (
@@ -129,7 +106,7 @@ function DriverScan() {
 export default function Page() {
   return (
     <Guard roles={["driver"]}>
-      <DriverScan />
+      <DriverBoard />
     </Guard>
   );
 }

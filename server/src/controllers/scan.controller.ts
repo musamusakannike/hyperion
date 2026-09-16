@@ -17,11 +17,17 @@ export const createScan: RequestHandler = async (request, response, next) => {
       throw new AppError('method must be "qr" or "rfid"');
     }
     if (!token) {
-      throw new AppError("token is required (QR payload or RFID UID)");
+      throw new AppError("token is required (driver QR payload or RFID UID)");
+    }
+
+    const role = request.user!.role;
+    if (role !== "student" && role !== "driver") {
+      throw new AppError("You cannot record a ride", 403, "FORBIDDEN");
     }
 
     const result = await performScan({
-      driverId: request.user!.id,
+      actorId: request.user!.id,
+      actorRole: role,
       method: method as "qr" | "rfid",
       token,
       pin,
