@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HYPERION — Smart Cashless Campus Transit & IoT Telematics System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F8FAFC; --card:#FFFFFF; --border:#E2E8F0;
+    --ink:#0F172A; --sub:#64748B; --blue:#2563EB; --blue-h:#1D4ED8;
+    --blue-soft:#EFF6FF; --green:#10B981;
+    --grad-primary: linear-gradient(135deg, #2563EB 0%, #4F8DFF 55%, #10B981 130%);
+    --grad-soft: linear-gradient(135deg, #EFF6FF 0%, #E0EAFE 100%);
+    --grad-text: linear-gradient(100deg, #1D4ED8 0%, #2563EB 45%, #0F766E 100%);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; color:var(--ink);
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    padding: env(safe-area-inset-top,0) 12px env(safe-area-inset-bottom,0);
+    overflow:hidden;
+    background:
+      radial-gradient(1100px 560px at 12% -8%, rgba(37,99,235,.07), transparent 60%),
+      radial-gradient(900px 520px at 108% 112%, rgba(16,185,129,.06), transparent 60%),
+      var(--bg);
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------- Deck shell ---------- */
+  #deck-wrap{
+    width:100%; max-width:1280px;
+    display:flex; flex-direction:column; gap:14px;
+    height:100vh; max-height:820px; padding:18px 0;
+  }
+  #progress-track{
+    width:100%; height:3px; background:var(--border); border-radius:99px; overflow:hidden; flex-shrink:0;
+  }
+  #progress-bar{
+    height:100%; width:10%;
+    background:var(--grad-primary);
+    background-size:200% 100%;
+    transition:width .45s cubic-bezier(.65,0,.35,1);
+    border-radius:99px;
+    animation:shimmer 3.2s linear infinite;
+  }
+  @keyframes shimmer{
+    0%{ background-position:0% 0%; }
+    100%{ background-position:200% 0%; }
+  }
+  #stage{
+    position:relative; flex:1; min-height:0;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:20px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.10);
+    overflow:hidden;
+  }
+  #stage::before{
+    content:''; position:absolute; inset:0; padding:1px; border-radius:20px;
+    background:linear-gradient(135deg, rgba(37,99,235,.18), rgba(16,185,129,.10) 60%, transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events:none; z-index:5;
+  }
+  .slide{
+    position:absolute; inset:0;
+    padding:clamp(24px,4vw,56px);
+    display:flex; flex-direction:column; justify-content:center;
+    opacity:0; transform:translateX(24px);
+    transition:opacity .45s cubic-bezier(.65,0,.35,1), transform .45s cubic-bezier(.65,0,.35,1);
+    pointer-events:none; overflow-y:auto;
+  }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.exit-left{ transform:translateX(-24px); }
+
+  /* ---------- Controls ---------- */
+  #controls{ display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  #dots{ display:flex; gap:7px; align-items:center; }
+  .dot{ width:6px; height:6px; border-radius:99px; background:#CBD5E1; transition:all .3s ease; cursor:pointer; }
+  .dot.active{ width:22px; background:var(--grad-primary); }
+  .nav-btn{
+    width:40px; height:40px; border-radius:12px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .25s, border-color .25s, transform .15s, color .25s, box-shadow .25s;
+    color:var(--ink);
+  }
+  .nav-btn:hover:not(:disabled){
+    background:var(--grad-primary); border-color:transparent; color:#fff;
+    box-shadow:0 6px 16px -6px rgba(37,99,235,.5);
+  }
+  .nav-btn:active:not(:disabled){ transform:scale(.94); }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  #counter{ font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+
+  /* ---------- Reusable design bits ---------- */
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:99px;
+    background:var(--blue-soft); color:var(--blue-h); font-size:12.5px; font-weight:600;
+    border:1px solid #DBEAFE;
+  }
+  .badge-green{ background:#ECFDF5; color:#047857; border-color:#D1FAE5; }
+  .badge-grad{
+    background:var(--grad-primary); color:#fff; border:none;
+    box-shadow:0 4px 12px -4px rgba(37,99,235,.45);
+  }
+  .icon-box{
+    background:var(--grad-soft);
+    position:relative; overflow:hidden;
+  }
+  .icon-box::after{
+    content:''; position:absolute; inset:0;
+    background:var(--grad-primary); opacity:0; transition:opacity .3s ease;
+  }
+  .card:hover .icon-box::after{ opacity:.12; }
+  .stat-num{
+    background:var(--grad-text); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .kicker{ color:var(--sub); font-size:13.5px; }
+  .card{
+    background:#fff; border:1px solid var(--border); border-radius:16px;
+    box-shadow:0 1px 2px rgba(15,23,42,.03);
+    transition:transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease, border-color .3s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 32px -18px rgba(37,99,235,.28);
+    border-color:#C7D9FB;
+  }
+  h1,h2,h3{ letter-spacing:-.02em; }
+  .grad-text{
+    background:var(--grad-text); -webkit-background-clip:text; background-clip:text;
+    color:transparent;
+  }
+  .fig{
+    border-radius:16px; border:1px solid var(--border); overflow:hidden; background:#F1F5F9;
+    position:relative;
+  }
+  .fig img{ display:block; width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.16,1,.3,1); }
+  .fig:hover img{ transform:scale(1.035); }
+
+  /* ---------- Slide entrance animation ---------- */
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .slide.active > *{
+    animation:fadeUp .55s cubic-bezier(.16,1,.3,1) backwards;
+  }
+  .slide.active > *:nth-child(1){ animation-delay:.02s; }
+  .slide.active > *:nth-child(2){ animation-delay:.09s; }
+  .slide.active > *:nth-child(3){ animation-delay:.16s; }
+  .slide.active > *:nth-child(4){ animation-delay:.23s; }
+  .slide.active .card{
+    animation:fadeUp .5s cubic-bezier(.16,1,.3,1) backwards;
+  }
+  .slide.active .grid > .card:nth-child(1){ animation-delay:.16s; }
+  .slide.active .grid > .card:nth-child(2){ animation-delay:.24s; }
+  .slide.active .grid > .card:nth-child(3){ animation-delay:.32s; }
+  .slide.active .grid > .card:nth-child(4){ animation-delay:.40s; }
+
+  /* ---------- Floating decorative orb (hero) ---------- */
+  .orb{
+    position:absolute; border-radius:50%; filter:blur(38px); z-index:0;
+    background:var(--grad-primary); opacity:.22;
+    animation:floatY 7s ease-in-out infinite;
+  }
+  @keyframes floatY{
+    0%,100%{ transform:translateY(0) scale(1); }
+    50%{ transform:translateY(-14px) scale(1.05); }
+  }
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:#CBD5E1; border-radius:99px; }
+  @media (prefers-reduced-motion:reduce){
+    .slide, #progress-bar, .dot, .card, .fig img{ transition:none !important; }
+    .slide.active > *, .slide.active .card, .orb, #progress-bar{
+      animation:none !important; opacity:1 !important; transform:none !important;
+    }
+  }
+  @media (max-width:640px){
+    #deck-wrap{ max-height:100vh; padding:10px 0; }
+    .nav-btn{ width:36px; height:36px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="deck-wrap">
+  <div id="progress-track"><div id="progress-bar"></div></div>
+
+  <div id="stage">
+
+    <!-- SLIDE 1 — Title Hero -->
+    <section class="slide" data-index="0">
+      <div class="grid md:grid-cols-2 gap-10 items-center h-full">
+        <div>
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="badge">SWEP Exhibition</span>
+            <span class="badge">Group H · University of Ilorin</span>
+          </div>
+          <h1 class="grad-text text-[clamp(2rem,4.2vw,3.4rem)] font-extrabold leading-[1.05] mb-5">
+            Next-gen cashless transit for a moving campus
+          </h1>
+          <p class="text-[var(--sub)] text-lg leading-relaxed mb-7 max-w-md">
+            HYPERION replaces cash, queues, and guesswork on campus shuttles with instant tap-and-go validation — powered by custom IoT hardware and a live fleet network.
+          </p>
+          <div class="flex items-center gap-4">
+            <div class="badge badge-green">Sub-300ms validation</div>
+            <div class="badge badge-green">100% cashless</div>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="orb w-48 h-48 -top-8 -right-8"></div>
+          <div class="orb w-32 h-32 -bottom-6 -left-6" style="animation-delay:2.2s;"></div>
+          <div class="fig aspect-[4/3] shadow-md relative z-[1]">
+            <img src="image1.jpg" alt="HYPERION product mockup">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 — Problem Statement -->
+    <section class="slide" data-index="1">
+      <span class="kicker mb-2">The problem</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-2">Campus transit is still stuck in cash</h2>
+      <p class="text-[var(--sub)] mb-8 max-w-2xl">Three frictions compound daily for students, drivers, and administrators alike.</p>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card p-6">
+          <div class="icon-box w-11 h-11 rounded-xl flex items-center justify-center mb-5">
+            <svg class="relative z-[1]" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M9 12h6M12 9v6"/></svg>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Cash friction &amp; change scarcity</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Drivers lose minutes per boarding hunting for change, and students are routinely turned away for lacking exact fare.</p>
+        </div>
+        <div class="card p-6">
+          <div class="icon-box w-11 h-11 rounded-xl flex items-center justify-center mb-5">
+            <svg class="relative z-[1]" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Zero transit visibility</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">No record of ridership, revenue, or route performance exists — fare leakage goes undetected and unaddressed.</p>
+        </div>
+        <div class="card p-6">
+          <div class="icon-box w-11 h-11 rounded-xl flex items-center justify-center mb-5">
+            <svg class="relative z-[1]" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Long boarding queues</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Manual fare collection bottlenecks every stop, delaying shuttles and stacking up frustrated students.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 — Unified Solution -->
+    <section class="slide" data-index="2">
+      <span class="kicker mb-2">The solution</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">One system, three connected pillars</h2>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card p-6 flex flex-col">
+          <span class="badge mb-4 self-start">Pillar 01</span>
+          <h3 class="font-bold text-lg mb-2">Student mobile &amp; web app</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed mb-5">Top up a dedicated account, hold a live point balance, and tap through boarding with a QR code or RFID card.</p>
+          <div class="fig aspect-[16/10] mt-auto">
+            <img src="image2.png" alt="Student app interface">
+          </div>
+        </div>
+        <div class="card p-6 flex flex-col">
+          <span class="badge mb-4 self-start">Pillar 02</span>
+          <h3 class="font-bold text-lg mb-2">ESP32 validator pod</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed mb-5">Onboard hardware reads RFID or QR in under 300ms, confirms fare deduction, and gives instant visual/audio feedback.</p>
+          <div class="fig aspect-[16/10] mt-auto">
+            <img src="https://placehold.co/500x310/2563eb/ffffff?text=ESP32+Validator+Pod" alt="ESP32 validator pod hardware">
+          </div>
+        </div>
+        <div class="card p-6 flex flex-col">
+          <span class="badge mb-4 self-start">Pillar 03</span>
+          <h3 class="font-bold text-lg mb-2">Admin command portal</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed mb-5">Live dashboards for ridership, revenue reconciliation, fleet health, and RFID card provisioning.</p>
+          <div class="fig aspect-[16/10] mt-auto">
+            <img src="https://placehold.co/500x310/2563eb/ffffff?text=Admin+Command+Portal" alt="Admin command portal dashboard">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 — Student Journey -->
+    <section class="slide" data-index="3">
+      <span class="kicker mb-2">Student experience</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-10">From top-up to boarding, in four steps</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="relative">
+          <div class="card p-5 h-full">
+            <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">STEP 01</div>
+            <h3 class="font-bold mb-1.5">Dedicated NUBAN</h3>
+            <p class="text-[var(--sub)] text-sm leading-relaxed">Every student gets a personal virtual bank account on signup.</p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="card p-5 h-full">
+            <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">STEP 02</div>
+            <h3 class="font-bold mb-1.5">Instant point top-up</h3>
+            <p class="text-[var(--sub)] text-sm leading-relaxed">Bank transfer converts instantly — ₦250 = 1 point.</p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="card p-5 h-full">
+            <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">STEP 03</div>
+            <h3 class="font-bold mb-1.5">QR scan or RFID tap</h3>
+            <p class="text-[var(--sub)] text-sm leading-relaxed">Board and present the app's QR code or a tapped RFID card.</p>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="card p-5 h-full border-[var(--blue)]/30">
+            <div class="mono text-xs text-[var(--green)] font-semibold mb-3">STEP 04</div>
+            <h3 class="font-bold mb-1.5">Sub-second clearance</h3>
+            <p class="text-[var(--sub)] text-sm leading-relaxed">Fare deducts and the gate clears in under a second.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 — Hardware -->
+    <section class="slide" data-index="4">
+      <div class="grid md:grid-cols-2 gap-10 items-center h-full">
+        <div>
+          <span class="kicker mb-2">IoT hardware</span>
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-5">The Validator Pod</h2>
+          <p class="text-[var(--sub)] mb-6 leading-relaxed">A purpose-built onboard unit that reads, confirms, and clears fare — with no dependency on a live connection.</p>
+          <ul class="space-y-3">
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--blue)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>ESP32</b> microcontroller running the validation firmware</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--blue)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>PN532 / RC522</b> RFID reader for card taps</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--blue)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>0.96" OLED</b> screen for balance and status</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--blue)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>Dual LEDs + piezo buzzer</b> for instant pass/fail feedback</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--blue)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>Servo gate lock</b> simulator for access control</span></li>
+          </ul>
+          <div class="flex gap-2 mt-6">
+            <span class="badge badge-green">&lt;300ms latency</span>
+            <span class="badge badge-green">Offline resilient</span>
+          </div>
+        </div>
+        <div class="fig aspect-square shadow-md">
+          <img src="https://placehold.co/700x700/2563eb/ffffff?text=Validator+Pod+Hardware+Diagram" alt="Validator pod hardware diagram">
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 — Fintech -->
+    <section class="slide" data-index="5">
+      <span class="kicker mb-2">Fintech &amp; point economy</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">Money in, points out — automatically</h2>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card p-6">
+          <h3 class="font-bold text-lg mb-2">Automated dedicated NUBANs</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Paystack provisions a unique virtual account per student at signup — no manual onboarding step.</p>
+        </div>
+        <div class="card p-6">
+          <h3 class="font-bold text-lg mb-2">Real-time webhook reconciliation</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Incoming transfers trigger a webhook that credits points to the student's balance within seconds.</p>
+        </div>
+        <div class="card p-6">
+          <h3 class="font-bold text-lg mb-2">Booth top-up fail-safe</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Physical top-up booths cover students without banking access, keeping the system fully inclusive.</p>
+        </div>
+      </div>
+      <div class="card p-6 mt-5 flex items-center gap-6">
+        <span class="mono text-2xl font-bold text-[var(--blue)] whitespace-nowrap">₦250 = 1 pt</span>
+        <div class="h-8 w-px bg-[var(--border)]"></div>
+        <p class="text-sm text-[var(--sub)]">A simple, transparent conversion rate students can track at a glance.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 — Operations & Fleet Control -->
+    <section class="slide" data-index="6">
+      <span class="kicker mb-2">Operations &amp; fleet control</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">Two interfaces, one live fleet</h2>
+      <div class="grid md:grid-cols-2 gap-6 h-full">
+        <div class="card p-6 flex flex-col">
+          <span class="badge mb-4 self-start">Driver</span>
+          <h3 class="font-bold text-lg mb-2">QR / trip interface</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed mb-5">Drivers start and close trips, view live headcount, and get pod status at a glance.</p>
+          <div class="fig aspect-[16/10] mt-auto">
+            <img src="https://placehold.co/560x350/2563eb/ffffff?text=Driver+Trip+Interface" alt="Driver trip interface">
+          </div>
+        </div>
+        <div class="card p-6 flex flex-col">
+          <span class="badge mb-4 self-start">Admin</span>
+          <h3 class="font-bold text-lg mb-2">Fleet analytics &amp; provisioning</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed mb-5">Admins track route revenue, fleet uptime, and issue or revoke RFID cards centrally.</p>
+          <div class="fig aspect-[16/10] mt-auto">
+            <img src="https://placehold.co/560x350/2563eb/ffffff?text=Admin+Fleet+Analytics" alt="Admin fleet analytics dashboard">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 — Architecture & Security -->
+    <section class="slide" data-index="7">
+      <span class="kicker mb-2">Technical architecture</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">Built on a modern, secure stack</h2>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="card p-6">
+          <h3 class="font-bold text-lg mb-4">Stack</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="badge">Node.js</span>
+            <span class="badge">Express 5</span>
+            <span class="badge">TypeScript</span>
+            <span class="badge">MongoDB Atlas</span>
+            <span class="badge">Next.js 15</span>
+            <span class="badge">React Native · Expo</span>
+            <span class="badge">ESP32 · C++</span>
+          </div>
+        </div>
+        <div class="card p-6">
+          <h3 class="font-bold text-lg mb-4">Security</h3>
+          <ul class="space-y-3">
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--green)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>JWT</b> session authentication across app and portal</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--green)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>bcrypt</b> password hashing at rest</span></li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[var(--green)] mt-2 flex-shrink-0"></span><span class="text-sm"><b>Device API key isolation</b> — each pod authenticates independently</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 — Measurable Impact -->
+    <section class="slide" data-index="8">
+      <span class="kicker mb-2">Measurable impact</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">What HYPERION delivers on day one</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div class="card p-6 text-center">
+          <div class="text-3xl md:text-4xl font-extrabold stat-num mb-2">&lt;300ms</div>
+          <p class="text-sm text-[var(--sub)]">Validation</p>
+        </div>
+        <div class="card p-6 text-center">
+          <div class="text-3xl md:text-4xl font-extrabold stat-num mb-2">100%</div>
+          <p class="text-sm text-[var(--sub)]">Cashless</p>
+        </div>
+        <div class="card p-6 text-center">
+          <div class="text-3xl md:text-4xl font-extrabold stat-num mb-2">Zero</div>
+          <p class="text-sm text-[var(--sub)]">Revenue leakage</p>
+        </div>
+        <div class="card p-6 text-center">
+          <div class="text-3xl md:text-4xl font-extrabold stat-num mb-2">Dual-sync</div>
+          <p class="text-sm text-[var(--sub)]">QR + RFID unified</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 — Roadmap & Closing -->
+    <section class="slide" data-index="9">
+      <span class="kicker mb-2">Future roadmap</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-8">Where HYPERION goes next</h2>
+      <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <div class="card p-6">
+          <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">PHASE 1</div>
+          <h3 class="font-bold mb-1.5">Prototype</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Validator pod, app, and admin portal deployed on a single shuttle route.</p>
+        </div>
+        <div class="card p-6">
+          <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">PHASE 2</div>
+          <h3 class="font-bold mb-1.5">Counting &amp; GPS</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Passenger counting sensors and live GPS tracking across the fleet.</p>
+        </div>
+        <div class="card p-6">
+          <div class="mono text-xs text-[var(--blue)] font-semibold mb-3">PHASE 3</div>
+          <h3 class="font-bold mb-1.5">Solar e-paper kiosks</h3>
+          <p class="text-[var(--sub)] text-sm leading-relaxed">Off-grid stop kiosks for balance checks and top-up, fully solar powered.</p>
+        </div>
+      </div>
+      <div class="card p-6 flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 class="font-bold text-lg">Team Group H — University of Ilorin</h3>
+          <p class="text-sm text-[var(--sub)]">SWEP Exhibition submission</p>
+        </div>
+        <span class="badge badge-grad">Thank you</span>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="controls">
+    <button id="prev" class="nav-btn" aria-label="Previous slide">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="flex items-center gap-5">
+      <div id="dots"></div>
+      <span id="counter" class="mono text-sm text-[var(--sub)]"></span>
+    </div>
+    <button id="next" class="nav-btn" aria-label="Next slide">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+
+  var dotsWrap = document.getElementById('dots');
+  var counter = document.getElementById('counter');
+  var progressBar = document.getElementById('progress-bar');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+
+  slides.forEach(function(_, i){
+    var d = document.createElement('div');
+    d.className = 'dot';
+    d.setAttribute('role','button');
+    d.setAttribute('aria-label','Go to slide ' + (i+1));
+    d.addEventListener('click', function(){ goTo(i); });
+    dotsWrap.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function render(prevIndex){
+    slides.forEach(function(s, i){
+      s.classList.remove('active', 'exit-left');
+      if (i === current){
+        s.classList.add('active');
+      } else if (typeof prevIndex === 'number' && i === prevIndex && prevIndex < current){
+        s.classList.add('exit-left');
+      }
+    });
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === current); });
+    counter.textContent = pad(current + 1) + ' / ' + pad(total);
+    progressBar.style.width = (((current + 1) / total) * 100) + '%';
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  function goTo(i){
+    if (i < 0 || i >= total || i === current) return;
+    var prevIndex = current;
+    current = i;
+    render(prevIndex);
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  // Touch / swipe support
+  var touchStartX = null;
+  var stage = document.getElementById('stage');
+  stage.addEventListener('touchstart', function(e){
+    touchStartX = e.changedTouches[0].clientX;
+  }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    if (touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50){
+      if (dx < 0) goTo(current + 1); else goTo(current - 1);
+    }
+    touchStartX = null;
+  }, {passive:true});
+
+  render();
+})();
+</script>
+</body>
+</html>
