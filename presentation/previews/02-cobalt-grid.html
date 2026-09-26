@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Hyperion — Cobalt Grid Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,300;1,400;1,500&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper:    #F0EBDE;   /* warm cream / ivory paper canvas */
+    --paper-2:  #E6E0CE;
+    --ink:      #1F2BE0;   /* electric cobalt / royal blue */
+    --ink-soft: #5560E5;   /* lighter cobalt for secondary marks */
+    --grid:     rgba(31, 43, 224, 0.10);  /* very faint blue grid */
+    --rule:     #1F2BE0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0a0a; }
+  body {
+    font-family: 'Hanken Grotesk', 'Helvetica Neue', sans-serif;
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  /* Deck wrapper — fills the viewport */
+  .deck { position: fixed; inset: 0; display: grid; place-items: center; }
+  .stage {
+    position: relative;
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  /* Graph-paper grid behind every slide */
+  .stage::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: clamp(28px, 2.2vw, 44px) clamp(28px, 2.2vw, 44px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .slide {
+    position: absolute; inset: 0;
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .hairlines::before, .hairlines::after {
+    content: '';
+    position: absolute;
+    left: clamp(36px, 3.6vw, 80px);
+    right: clamp(36px, 3.6vw, 80px);
+    height: 1px;
+    background: var(--rule);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .hairlines::before { top: clamp(32px, 3.5vh, 48px); }
+  .hairlines::after  { bottom: clamp(32px, 3.5vh, 48px); }
+
+  .pixel-glitch {
+    position: absolute;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .pixel-glitch svg { display: block; width: 100%; height: 100%; }
+
+  .qr-block {
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 1.5px;
+    background: var(--paper);
+    padding: 4px;
+    box-shadow: 0 0 0 1.5px var(--paper);
+  }
+  .qr-block .px { background: var(--paper); }
+  .qr-block .px.on { background: var(--ink); }
+
+  /* SLIDE 1 — COVER */
+  .s-cover { background: var(--paper); }
+  .s-cover .titlewrap {
+    position: absolute;
+    left: clamp(36px, 3.6vw, 80px);
+    top: clamp(80px, 9vh, 160px);
+    z-index: 5;
+    max-width: 65%;
+  }
+  .s-cover .title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(70px, min(8vw, 14vh), 140px);
+    line-height: 0.92;
+    letter-spacing: -0.008em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .s-cover .subkicker {
+    margin-top: clamp(20px, 2.2vh, 36px);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .s-cover .subkicker .l {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: clamp(13px, 1vw, 16px);
+    color: var(--ink);
+  }
+  .s-cover .subkicker .ed {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(24px, min(2.4vw, 4vh), 42px);
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .s-cover .pixel-glitch {
+    top: clamp(60px, 6vh, 120px);
+    right: clamp(36px, 3.6vw, 80px);
+    width: clamp(280px, 30vw, 520px);
+    bottom: clamp(110px, 12vh, 200px);
+  }
+  .s-cover .qr-block {
+    top: clamp(60px, 6vh, 120px);
+    right: clamp(120px, 8vw, 200px);
+    width: clamp(58px, 4.2vw, 84px);
+    height: clamp(58px, 4.2vw, 84px);
+  }
+  .s-cover .vstack {
+    position: absolute;
+    right: clamp(36px, 3.6vw, 60px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex; flex-direction: column;
+    gap: clamp(10px, 1.2vh, 18px);
+    align-items: end;
+  }
+  .s-cover .vstack .v-row {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: clamp(12px, 0.9vw, 15px);
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  .s-cover .cfooter {
+    position: absolute;
+    left: clamp(36px, 3.6vw, 80px);
+    right: clamp(500px, 35vw, 700px);
+    bottom: clamp(60px, 6vh, 90px);
+    display: flex; justify-content: space-between; align-items: end;
+    z-index: 5;
+  }
+  .s-cover .cfooter .sec {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .s-cover .cfooter .sec .flab {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: clamp(10px, 0.72vw, 12px);
+    color: var(--ink);
+  }
+  .s-cover .cfooter .sec .fval {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(13px, 0.88vw, 15px);
+    color: var(--ink);
+  }
+  .pagenum {
+    position: absolute;
+    right: clamp(28px, 2.4vw, 48px);
+    bottom: clamp(48px, 4.8vh, 76px);
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: clamp(11px, 0.82vw, 13px);
+    color: var(--ink);
+    letter-spacing: 0.06em;
+    z-index: 9;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="stage">
+    <section class="slide s-cover hairlines active">
+      <div class="titlewrap">
+        <h1 class="title">Hyperion<br/>Mobility</h1>
+        <div class="subkicker">
+          <div class="l">SWEP 200 Exhibition · Group H · University of Ilorin</div>
+          <div class="ed">Cashless Campus Transit &amp; IoT Hardware Telematics.</div>
+        </div>
+      </div>
+
+      <div class="pixel-glitch" aria-hidden="true">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+          <defs>
+            <pattern id="vs1" width="2.4" height="100" patternUnits="userSpaceOnUse">
+              <line x1="0.5" y1="0" x2="0.5" y2="100" stroke="#1F2BE0" stroke-width="1.0" />
+            </pattern>
+          </defs>
+          <rect x="36" y="0"  width="38" height="14" fill="url(#vs1)"/>
+          <rect x="22" y="14" width="50" height="12" fill="url(#vs1)"/>
+          <rect x="34" y="26" width="46" height="11" fill="url(#vs1)"/>
+          <rect x="16" y="37" width="60" height="13" fill="url(#vs1)"/>
+          <rect x="28" y="50" width="48" height="11" fill="url(#vs1)"/>
+          <rect x="18" y="61" width="62" height="14" fill="url(#vs1)"/>
+          <rect x="34" y="75" width="44" height="12" fill="url(#vs1)"/>
+          <rect x="22" y="87" width="50" height="13" fill="url(#vs1)"/>
+        </svg>
+      </div>
+
+      <div class="vstack">
+        <div class="v-row">UNILORIN.SWEP</div>
+        <div class="v-row">SEPTEMBER 2026</div>
+      </div>
+
+      <div class="qr-block" aria-hidden="true">
+        <div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div>
+        <div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div>
+        <div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div>
+        <div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px"></div><div class="px on"></div><div class="px"></div>
+        <div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div>
+        <div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div>
+        <div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px"></div>
+        <div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div><div class="px"></div><div class="px on"></div><div class="px on"></div><div class="px on"></div>
+      </div>
+
+      <div class="cfooter">
+        <div class="sec">
+          <div class="flab">Architecture</div>
+          <div class="fval">ESP32 + Express 5 + RFID / QR</div>
+        </div>
+        <div class="sec">
+          <div class="flab">Validator Pod</div>
+          <div class="fval">Dual Mode NFC / RFID Reader</div>
+        </div>
+      </div>
+
+      <div class="pagenum">01 / 08</div>
+    </section>
+  </div>
+</div>
+
+</body>
+</html>

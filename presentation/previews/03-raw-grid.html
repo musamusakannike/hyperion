@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyperion — Raw Grid Preview</title>
+<style>
+/* --- RESET & BASE --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black: #0a0a0a;
+  --white: #ffffff;
+  --pink: #f2d4cf;
+  --green: #e5edd6;
+  --gray: #f5f5f5;
+  --darkgray: #333333;
+  --border: 3px solid var(--black);
+  --shadow: 6px 6px 0 var(--black);
+  --shadow-sm: 4px 4px 0 var(--black);
+}
+html, body {
+  width: 100%; height: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  background: var(--white);
+  color: var(--black);
+  overflow: hidden;
+}
+
+.slide-deck {
+  width: 100vw; height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  background: var(--white);
+  overflow: hidden;
+}
+.slide-content {
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+.t-display {
+  font-size: clamp(40px, 5.5vw, 76px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.t-caption {
+  font-size: clamp(11px, 1vw, 13px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--white);
+  border: var(--border);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-sm);
+}
+
+.s1 .slide-content {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  height: 100%;
+}
+.s1-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(32px, 4vw, 64px);
+  background: var(--pink);
+  border-right: var(--border);
+}
+.s1-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.s1-logo-box {
+  width: 48px; height: 48px;
+  border: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.s1-brand-text {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.s1-headline { margin-top: auto; margin-bottom: auto; }
+.s1-right {
+  display: flex;
+  flex-direction: column;
+}
+.s1-list-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(24px, 3vw, 48px);
+  border-bottom: var(--border);
+  font-size: clamp(16px, 1.6vw, 22px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: var(--white);
+}
+.s1-list-item:last-child { border-bottom: none; }
+.s1-list-item.bg-green { background: var(--green); }
+.s1-list-item::before {
+  content: "\2192\00a0";
+  margin-right: 12px;
+  font-size: 0.85em;
+}
+</style>
+</head>
+<body>
+
+<div class="slide-deck">
+  <div class="slide s1">
+    <div class="slide-content">
+      <div class="s1-left">
+        <div class="s1-brand">
+          <div class="s1-logo-box">HY</div>
+          <span class="s1-brand-text">HYPERION · UNILORIN SWEP GROUP H</span>
+        </div>
+        <div class="s1-headline">
+          <div class="t-display">Smart Cashless<br>Campus Transit.</div>
+          <p style="margin-top: 16px; font-weight: 600; font-size: 18px;">Automated NFC Card &amp; Dynamic QR Bus Fare Ecosystem with IoT Telematics</p>
+        </div>
+        <div class="s1-cta">
+          <span class="label">Engineering Defense · Sept 2026</span>
+        </div>
+      </div>
+      <div class="s1-right">
+        <div class="s1-list-item">1. Unified Scan Backend</div>
+        <div class="s1-list-item bg-green">2. ESP32 Hardware Pod</div>
+        <div class="s1-list-item">3. Automated Capacity (APC)</div>
+        <div class="s1-list-item">4. Edge Offline Storage</div>
+        <div class="s1-list-item">5. Fleet Telematics &amp; GPS</div>
+        <div class="s1-list-item">6. Live System Benchmarks</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

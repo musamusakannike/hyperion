@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Hyperion — Neo-Grid Bold Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="deck-stage.js"></script>
+<style>
+  :root {
+    --bg: #ECECE8;
+    --ink: #0A0A0A;
+    --paper: #F5F4EF;
+    --accent: #E6FF3D;        /* signature neon yellow */
+    --line: #0A0A0A;
+    --muted: #8A8A85;
+  }
+  html, body { margin: 0; padding: 0; background: #1a1a1a; }
+  body { font-family: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); }
+  deck-stage { background: #1a1a1a; }
+
+  /* --- shared slide chrome ------------------------------------------ */
+  section.slide {
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .frame {
+    position: absolute; inset: 40px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 12px;
+  }
+  .card {
+    background: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .card.ink   { background: var(--ink);   color: var(--paper); }
+  .card.lemon { background: var(--accent); color: var(--ink); }
+  .card.photo { background: #111; color: #fff; }
+
+  .pagenum {
+    position: absolute;
+    left: 0; bottom: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 24px;
+    padding: 14px 22px;
+    letter-spacing: 0.04em;
+  }
+  .pagenum.invert { background: var(--ink); color: var(--paper); }
+  .pagenum.lemon  { background: var(--accent); color: var(--ink); }
+
+  .corner-mark {
+    position: absolute;
+    top: 22px; right: 22px;
+    width: 36px; height: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+  }
+  .corner-mark span { background: currentColor; }
+  .corner-mark span:nth-child(2) { background: transparent; }
+
+  h1, h2, h3, p { margin: 0; }
+  .title {
+    font-weight: 700;
+    font-size: 78px;
+    line-height: 0.95;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+  }
+
+  /* --- slide 1: COVER ---------------------------------------------- */
+  .s-cover .panel-photo-l { 
+    grid-column: 1 / span 3; grid-row: 1 / span 8; 
+    background: url('../image1.jpg') center/cover no-repeat #111; 
+    position: relative; 
+  }
+  .s-cover .panel-mid     { grid-column: 4 / span 5; grid-row: 1 / span 2; background: var(--paper); position: relative; }
+  .s-cover .panel-titletile { 
+    grid-column: 4 / span 9; grid-row: 3 / span 6; 
+    background: var(--paper); 
+    position: relative; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .s-cover .panel-photo-r { 
+    grid-column: 9 / span 4; grid-row: 1 / span 2; 
+    background: url('../image2.png') center/cover no-repeat #111; 
+    position: relative; 
+  }
+  .s-cover .qr {
+    position: absolute; top: 24px; left: 24px;
+    width: 70px; height: 70px; background: var(--ink);
+    display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 0;
+  }
+  .s-cover .qr i { background: var(--ink); }
+  .s-cover .qr i.k { background: var(--accent); }
+  .s-cover .title-block {
+    position: absolute; left: 40px; right: 40px; bottom: 40px;
+  }
+  .s-cover .meta-tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--accent);
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+  }
+  .s-cover .subtitle-text {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+    color: var(--muted);
+    margin-top: 16px;
+    letter-spacing: 0.04em;
+  }
+  .s-cover .blockmark {
+    position: absolute; right: 40px; bottom: 40px;
+    width: 56px; height: 56px;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px;
+  }
+  .s-cover .blockmark span:nth-child(1) { background: var(--ink); }
+  .s-cover .blockmark span:nth-child(2) { background: transparent; }
+  .s-cover .blockmark span:nth-child(3) { background: transparent; }
+  .s-cover .blockmark span:nth-child(4) { background: var(--ink); }
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+  <section class="slide s-cover active" data-label="01 Cover">
+    <div class="frame">
+      <div class="panel-photo-l card"></div>
+      <div class="panel-mid card">
+        <div class="qr" aria-hidden="true">
+          <i></i><i class="k"></i><i></i><i class="k"></i><i></i>
+          <i class="k"></i><i></i><i class="k"></i><i></i><i class="k"></i>
+          <i></i><i class="k"></i><i></i><i class="k"></i><i></i>
+          <i class="k"></i><i></i><i class="k"></i><i></i><i class="k"></i>
+          <i></i><i class="k"></i><i></i><i class="k"></i><i></i>
+        </div>
+        <div style="position: absolute; left: 110px; top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700;">
+          SWEP 200 EXHIBITION<br><span style="color: var(--muted);">GROUP H • UNILORIN</span>
+        </div>
+      </div>
+      <div class="panel-photo-r card"></div>
+      <div class="panel-titletile card">
+        <div class="title-block">
+          <div class="meta-tag">IoT TELEMATICS &amp; TRANSIT WALLET</div>
+          <h1 class="title">HYPERION<br><span style="font-size: 54px; color: #333;">CASHLESS CAMPUS MOBILITY</span></h1>
+          <p class="subtitle-text">Unified QR Code &amp; Dual-Frequency RFID Bus Fare Validation Architecture</p>
+        </div>
+        <div class="blockmark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="pagenum">01 / 12</div>
+  </section>
+</deck-stage>
+
+</body>
+</html>

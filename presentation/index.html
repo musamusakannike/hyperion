@@ -2,1084 +2,1428 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HYPERION — Smart Cashless Campus Transit & IoT Telematics System</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Rajdhani:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #2563EB;
-    --primary-dark: #1D4ED8;
-    --primary-light: #EFF6FF;
-    --secondary: #10B981;
-    --secondary-dark: #059669;
-    --black: #0A0E11;
-    --text: #171717;
-    --sub: #525252;
-    --bg: #F4F4F0;
-    --card: #FFFFFF;
-    --tag-bg: #F3F4F6;
-    --border: #0A0E11;
-  }
+/* =============================================
+   RAW GRID — Neobrutalist Presentation System
+   ============================================= */
 
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; padding: 0; }
+/* --- RESET & BASE --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black: #0a0a0a;
+  --white: #ffffff;
+  --pink: #f2d4cf;
+  --green: #e5edd6;
+  --gray: #f5f5f5;
+  --darkgray: #262626;
+  --border: 3px solid var(--black);
+  --border-thick: 4px solid var(--black);
+  --shadow: 6px 6px 0 var(--black);
+  --shadow-sm: 3px 3px 0 var(--black);
+  --shadow-lg: 8px 8px 0 var(--black);
+}
 
-  body {
-    color: var(--text);
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: env(safe-area-inset-top, 0) 12px env(safe-area-inset-bottom, 0);
-    overflow: hidden;
-    background-color: var(--bg);
-    background-image: radial-gradient(#0A0E11 0.85px, transparent 0.85px);
-    background-size: 24px 24px;
-  }
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #121212;
+  color: var(--black);
+  overflow: hidden;
+}
 
-  .font-heading { font-family: 'Rajdhani', sans-serif !important; }
-  .font-mono { font-family: 'IBM Plex Mono', monospace !important; }
+/* --- DECK WRAPPER & SLIDE SYSTEM --- */
+.slide-deck {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: var(--white);
+  overflow: hidden;
+}
 
-  /* ---------- Brutalist Deck Layout ---------- */
-  #deck-wrap {
-    width: 100%;
-    max-width: 1260px;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-height: 860px;
-    padding: 12px 0;
-    gap: 10px;
-  }
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background: var(--white);
+  overflow: hidden;
+}
 
-  /* Ruler Ticks Top Bar */
-  .ruler-bar {
-    position: relative;
-    width: 100%;
-    height: 38px;
-    background: #0A0E11;
-    border: 2px solid #0A0E11;
-    box-shadow: 3px 3px 0px #0A0E11;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
+.slide.active {
+  display: flex;
+  flex-direction: column;
+}
 
-  /* Progress Track */
-  #progress-track {
-    width: 100%;
-    height: 6px;
-    background: #E5E7EB;
-    border: 2px solid #0A0E11;
-    box-shadow: 2px 2px 0px #0A0E11;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
+.slide-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
 
-  #progress-bar {
-    height: 100%;
-    width: 10%;
-    background: var(--primary);
-    border-right: 2px solid #0A0E11;
-    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* --- TYPOGRAPHY --- */
+.t-display {
+  font-size: clamp(38px, 5.5vw, 76px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
 
-  /* Stage Container */
-  #stage {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    background: #FFFFFF;
-    border: 2.5px solid #0A0E11;
-    box-shadow: 6px 6px 0px #0A0E11;
-    overflow: hidden;
-  }
+.t-headline {
+  font-size: clamp(26px, 3.8vw, 52px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
 
-  /* Slide Transitions */
-  .slide {
-    position: absolute;
-    inset: 0;
-    padding: clamp(20px, 3.5vw, 48px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-    pointer-events: none;
-    overflow-y: auto;
-  }
+.t-title {
+  font-size: clamp(20px, 2.2vw, 32px);
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
 
-  .slide.active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
+.t-subtitle {
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: 800;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
-  .slide.exit-left {
-    transform: translateY(-12px);
-  }
+.t-body {
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: 500;
+  line-height: 1.55;
+}
 
-  /* ---------- Mini-Brutalist Components ---------- */
-  .brutal-card {
-    background: #FFFFFF;
-    border: 2px solid #0A0E11;
-    box-shadow: 4px 4px 0px #0A0E11;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
+.t-caption {
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
-  .brutal-card:hover {
-    transform: translate(-1.5px, -1.5px);
-    box-shadow: 6px 6px 0px #0A0E11;
-  }
+.t-number {
+  font-size: clamp(52px, 6.5vw, 100px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
 
-  .brutal-card-dark {
-    background: #0A0E11;
-    color: #FFFFFF;
-    border: 2px solid var(--primary);
-    box-shadow: 4px 4px 0px var(--primary);
-  }
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
-  .brutal-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border: 1.5px solid #0A0E11;
-    background: var(--tag-bg);
-    color: #0A0E11;
-    box-shadow: 2px 2px 0px #0A0E11;
-  }
+/* --- UTILITIES & RAW GRID COMPONENTS --- */
+.b { border: var(--border); }
+.b-t { border-top: var(--border); }
+.b-b { border-bottom: var(--border); }
+.b-l { border-left: var(--border); }
+.b-r { border-right: var(--border); }
 
-  .brutal-tag-primary {
-    background: var(--primary);
-    color: #FFFFFF;
-    border-color: #0A0E11;
-  }
+.bg-pink { background: var(--pink); }
+.bg-green { background: var(--green); }
+.bg-black { background: var(--black); }
+.bg-gray { background: var(--gray); }
+.bg-white { background: var(--white); }
 
-  .brutal-tag-green {
-    background: var(--secondary);
-    color: #0A0E11;
-    border-color: #0A0E11;
-  }
+.c-white { color: var(--white); }
+.c-black { color: var(--black); }
 
-  .brutal-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #0A0E11;
-    background: #FFFFFF;
-    color: #0A0E11;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    box-shadow: 3px 3px 0px #0A0E11;
-    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
-    user-select: none;
-  }
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--black);
+  color: var(--white);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
-  .brutal-btn:hover:not(:disabled) {
-    transform: translate(-1px, -1px);
-    box-shadow: 4.5px 4.5px 0px #0A0E11;
-    background: var(--primary-light);
-  }
+.label.outline {
+  background: var(--white);
+  color: var(--black);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+}
 
-  .brutal-btn:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0px #0A0E11;
-  }
+.label.green {
+  background: var(--green);
+  color: var(--black);
+  border: var(--border);
+}
 
-  .brutal-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
+.label.pink {
+  background: var(--pink);
+  color: var(--black);
+  border: var(--border);
+}
 
-  .brutal-btn-primary {
-    background: var(--primary);
-    color: #FFFFFF;
-  }
+.line {
+  width: 50px;
+  height: 4px;
+  background: var(--black);
+}
 
-  .brutal-btn-primary:hover:not(:disabled) {
-    background: var(--primary-dark);
-    color: #FFFFFF;
-  }
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--white);
+  border: 2px solid var(--black);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
-  /* Brutalist Highlight Skew */
-  .highlight-skew {
-    position: relative;
-    display: inline-block;
-  }
+/* Slide Header Bar */
+.slide-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(20px, 3vw, 48px);
+  border-bottom: var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+  z-index: 10;
+}
 
-  .highlight-skew::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 2px;
-    height: 42%;
-    background: var(--primary);
-    transform: skewX(-12deg);
-    z-index: 0;
-    opacity: 0.85;
-  }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-  .highlight-skew > span {
-    position: relative;
-    z-index: 1;
-  }
+.header-brand-box {
+  width: 32px;
+  height: 32px;
+  background: var(--black);
+  color: var(--white);
+  font-weight: 900;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--black);
+}
 
-  .highlight-skew-green::after {
-    background: var(--secondary);
-  }
+.header-title {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
-  /* Image Frames */
-  .fig-brutal {
-    border: 2px solid #0A0E11;
-    box-shadow: 4px 4px 0px #0A0E11;
-    overflow: hidden;
-    background: #F3F4F6;
-    position: relative;
-  }
+/* Global Deck Navigation Chrome */
+.deck-controls {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 999;
+}
 
-  .fig-brutal img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--white);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
 
-  .fig-brutal:hover img {
-    transform: scale(1.03);
-  }
+.nav-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--black);
+  background: var(--green);
+}
 
-  /* Bottom Controls HUD */
-  #controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    padding: 0 4px;
-  }
+.nav-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black);
+}
 
-  #dots {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
+.slide-counter {
+  height: 44px;
+  padding: 0 16px;
+  background: var(--black);
+  color: var(--white);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
 
-  .dot {
-    width: 14px;
-    height: 14px;
-    border: 1.5px solid #0A0E11;
-    background: #FFFFFF;
-    box-shadow: 1.5px 1.5px 0px #0A0E11;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
+/* =============================================
+   SLIDE 1 — TITLE / COVER
+   ============================================= */
+.s1 .slide-content {
+  display: grid;
+  grid-template-columns: 54% 46%;
+  height: 100%;
+}
 
-  .dot:hover {
-    background: var(--primary-light);
-  }
+.s1-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 3.5vw, 56px);
+  background: var(--pink);
+  border-right: var(--border);
+  position: relative;
+}
 
-  .dot.active {
-    width: 28px;
-    background: var(--primary);
-    border-color: #0A0E11;
-    box-shadow: 2px 2px 0px #0A0E11;
-  }
+.s1-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  /* Hide scrollbar */
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.s1-logo-box {
+  width: 52px;
+  height: 52px;
+  border: var(--border);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+}
 
-  /* Animations for Slide Elements */
-  @keyframes brutalFadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.s1-headline {
+  margin: auto 0;
+  padding: 16px 0;
+}
 
-  .slide.active > * {
-    animation: brutalFadeUp 0.4s ease backwards;
-  }
-  .slide.active > *:nth-child(1) { animation-delay: 0.03s; }
-  .slide.active > *:nth-child(2) { animation-delay: 0.08s; }
-  .slide.active > *:nth-child(3) { animation-delay: 0.14s; }
-  .slide.active > *:nth-child(4) { animation-delay: 0.20s; }
+.s1-right {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+}
 
-  @media (max-width: 640px) {
-    #deck-wrap { max-height: 100vh; padding: 6px 0; }
-    .slide { padding: 16px; }
-  }
+.s1-list-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(20px, 2.5vw, 40px);
+  border-bottom: var(--border);
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: var(--white);
+  transition: background 0.15s;
+}
+
+.s1-list-item:last-child { border-bottom: none; }
+.s1-list-item:hover { background: var(--green); }
+.s1-list-item.active-item { background: var(--green); }
+
+.s1-list-item::before {
+  content: "→ ";
+  margin-right: 12px;
+  font-weight: 900;
+  font-size: 1.1em;
+}
+
+/* =============================================
+   SLIDE 2 — PROBLEM VS SOLUTION
+   ============================================= */
+.s2 .slide-body {
+  display: grid;
+  grid-template-columns: 46% 54%;
+  height: calc(100% - 64px);
+}
+
+.s2-left {
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: var(--border);
+  background: var(--white);
+}
+
+.s2-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+
+.s2-block {
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.s2-block:first-child {
+  border-bottom: var(--border);
+  background: var(--pink);
+}
+
+.s2-block:last-child {
+  background: var(--green);
+}
+
+/* =============================================
+   SLIDE 3 — SYSTEM ARCHITECTURE
+   ============================================= */
+.s3 .slide-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: calc(100% - 64px);
+}
+
+.s3-card {
+  padding: clamp(20px, 2.5vw, 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.s3-card:nth-child(1) { border-right: var(--border); border-bottom: var(--border); background: var(--white); }
+.s3-card:nth-child(2) { border-bottom: var(--border); background: var(--green); }
+.s3-card:nth-child(3) { border-right: var(--border); background: var(--pink); }
+.s3-card:nth-child(4) { background: var(--gray); }
+
+.s3-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* =============================================
+   SLIDE 4 & 5 & 7 — SPLIT HARDWARE SHOWCASE WITH IMAGES
+   ============================================= */
+.s-hardware .slide-body {
+  display: grid;
+  grid-template-columns: 48% 52%;
+  height: calc(100% - 64px);
+}
+
+.hardware-photo-pane {
+  background: var(--black);
+  border-right: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.hardware-img-frame {
+  width: 100%;
+  height: 100%;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  background: #222;
+}
+
+.hardware-caption-badge {
+  position: absolute;
+  bottom: 36px;
+  left: 36px;
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--white);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: var(--shadow-sm);
+}
+
+.hardware-spec-pane {
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--white);
+  overflow-y: auto;
+}
+
+.spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.spec-item {
+  border: var(--border);
+  padding: 12px 16px;
+  background: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spec-item.highlight {
+  background: var(--green);
+}
+
+/* =============================================
+   SLIDE 6 — PROCESS / TIMELINE (OFFLINE RESILIENCE)
+   ============================================= */
+.s6 .slide-body {
+  display: flex;
+  height: calc(100% - 64px);
+}
+
+.s6-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(20px, 2.5vw, 40px) clamp(16px, 1.8vw, 28px);
+  position: relative;
+}
+
+.s6-step + .s6-step { border-left: var(--border); }
+.s6-step:nth-child(1) { background: var(--white); }
+.s6-step:nth-child(2) { background: var(--gray); }
+.s6-step:nth-child(3) { background: var(--pink); }
+.s6-step:nth-child(4) { background: var(--green); }
+
+.s6-step-num {
+  font-size: clamp(40px, 5vw, 70px);
+  font-weight: 900;
+  line-height: 1;
+  opacity: 0.3;
+}
+
+/* =============================================
+   SLIDE 8 — PAYSTACK WALLET & METRICS
+   ============================================= */
+.s8 .slide-body {
+  display: grid;
+  grid-template-columns: 46% 54%;
+  height: calc(100% - 64px);
+}
+
+.s8-left {
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-right: var(--border);
+  background: var(--white);
+}
+
+.s8-stat-circle {
+  width: clamp(160px, 18vw, 240px);
+  height: clamp(160px, 18vw, 240px);
+  border: var(--border-thick);
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.s8-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.s8-metric-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(24px, 3vw, 48px);
+  border-bottom: var(--border);
+  background: var(--white);
+}
+
+.s8-metric-row:nth-child(even) { background: var(--gray); }
+.s8-metric-row:last-child { border-bottom: none; }
+
+/* =============================================
+   SLIDE 9 — COMPARISON TABLE
+   ============================================= */
+.s9 .slide-body {
+  padding: clamp(20px, 2.5vw, 40px) clamp(24px, 3vw, 48px);
+  height: calc(100% - 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--white);
+}
+
+.raw-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: var(--shadow);
+}
+
+.raw-table th {
+  border: var(--border);
+  padding: clamp(10px, 1.2vw, 16px);
+  font-size: clamp(12px, 1vw, 14px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  background: var(--black);
+  color: var(--white);
+}
+
+.raw-table td {
+  border: var(--border);
+  padding: clamp(10px, 1.2vw, 16px);
+  font-size: clamp(13px, 1.1vw, 16px);
+  font-weight: 600;
+}
+
+.raw-table tr:nth-child(even) td { background: var(--gray); }
+.raw-table tr.highlight td { background: var(--green); font-weight: 800; }
+
+/* =============================================
+   SLIDE 10 — LATENCY & PERFORMANCE BAR CHART
+   ============================================= */
+.s10 .slide-body {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  height: calc(100% - 64px);
+}
+
+.s10-chart-pane {
+  padding: clamp(24px, 3vw, 48px);
+  border-right: var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--white);
+}
+
+.bar-track {
+  width: 100%;
+  height: 38px;
+  border: var(--border);
+  background: var(--gray);
+  margin-top: 6px;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 2px 0 0 var(--black);
+}
+
+.s10-insights-pane {
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  background: var(--pink);
+}
+
+.s10-stat-card {
+  border: var(--border);
+  padding: 20px;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =============================================
+   SLIDE 11 — LIVE DEMO RUNTHROUGH
+   ============================================= */
+.s11 .slide-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: calc(100% - 64px);
+}
+
+.s11-card {
+  padding: clamp(20px, 2.5vw, 36px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.s11-card:nth-child(1) { border-right: var(--border); border-bottom: var(--border); background: var(--white); }
+.s11-card:nth-child(2) { border-bottom: var(--border); background: var(--pink); }
+.s11-card:nth-child(3) { border-right: var(--border); background: var(--green); }
+.s11-card:nth-child(4) { background: var(--gray); }
+
+/* =============================================
+   SLIDE 12 — CLOSING & TEAM ATTRIBUTION
+   ============================================= */
+.s12 .slide-content {
+  display: grid;
+  grid-template-columns: 52% 48%;
+  height: 100%;
+}
+
+.s12-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 3.5vw, 56px);
+  background: var(--green);
+  border-right: var(--border);
+}
+
+.s12-right {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+}
+
+.s12-top {
+  flex: 1;
+  padding: clamp(24px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: var(--border);
+}
+
+.s12-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 90px;
+}
+
+.s12-bottom-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.s12-bottom-block:first-child { border-right: var(--border); background: var(--pink); }
+.s12-bottom-block:last-child { background: var(--black); color: var(--white); }
+
+/* Image responsive helper */
+img.raw-thumb {
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
 </style>
 </head>
 <body>
 
-<div id="deck-wrap">
-  <!-- Top Brutalist Ruler Bar -->
-  <header class="ruler-bar">
-    <svg class="absolute top-0 left-0 w-full h-full opacity-60 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="ruler-ticks-hyperion" width="36" height="18" patternUnits="userSpaceOnUse">
-          <line x1="0" y1="0" x2="0" y2="18" stroke="#2563EB" stroke-width="2" />
-          <line x1="9" y1="0" x2="9" y2="7" stroke="#2563EB" stroke-width="1.2" />
-          <line x1="18" y1="0" x2="18" y2="11" stroke="#2563EB" stroke-width="1.6" />
-          <line x1="27" y1="0" x2="27" y2="7" stroke="#2563EB" stroke-width="1.2" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#ruler-ticks-hyperion)" />
-    </svg>
-    
-    <div class="relative z-10 flex items-center gap-2.5">
-      <span class="w-2.5 h-2.5 bg-[#10B981] border border-black animate-pulse"></span>
-      <span class="font-heading font-bold text-xs uppercase tracking-[0.25em] text-white">HYPERION TELEMATICS // DECK</span>
-    </div>
+<div class="slide-deck" id="deck">
 
-    <div class="relative z-10 flex items-center gap-3">
-      <span class="font-mono text-xs text-[#CBD5E1] hidden sm:inline-block font-semibold">SWEP 200 · GROUP H</span>
-      <button id="fullscreen-btn" class="font-heading font-bold text-xs uppercase tracking-wider bg-white text-black px-2.5 py-0.5 border border-black hover:bg-[var(--primary)] hover:text-white transition-colors cursor-pointer" title="Toggle Fullscreen">
-        ⛶ FULLSCREEN
-      </button>
-    </div>
-  </header>
-
-  <!-- Progress Bar Track -->
-  <div id="progress-track"><div id="progress-bar"></div></div>
-
-  <!-- Stage -->
-  <main id="stage">
-
-    <!-- SLIDE 1 — Title Hero -->
-    <section class="slide" data-index="0">
-      <div class="grid md:grid-cols-12 gap-8 items-center h-full">
-        <div class="md:col-span-7 flex flex-col items-start gap-4">
-          <div class="flex flex-wrap gap-2">
-            <span class="brutal-tag brutal-tag-primary">SWEP Exhibition</span>
-            <span class="brutal-tag">Group H · University of Ilorin</span>
-          </div>
-
-          <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.08] text-black">
-            Next-gen <span class="highlight-skew"><span>cashless transit</span></span> for a moving campus
-          </h1>
-
-          <p class="text-[var(--sub)] text-base sm:text-lg font-medium leading-relaxed max-w-xl">
-            HYPERION replaces cash, queues, and fare leakage on campus shuttles with instant tap-and-go validation — powered by custom ESP32 IoT hardware and a live fleet network.
-          </p>
-
-          <div class="flex flex-wrap items-center gap-3 mt-2">
-            <div class="brutal-tag brutal-tag-green">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              Sub-300ms validation
-            </div>
-            <div class="brutal-tag bg-black text-white border-black">
-              <svg class="w-4 h-4 text-[var(--secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              100% Cashless System
-            </div>
+  <!-- ========================================================
+       SLIDE 1: COVER
+       ======================================================== -->
+  <div class="slide s1 active" data-slide="1">
+    <div class="slide-content">
+      <div class="s1-left">
+        <div class="s1-brand">
+          <div class="s1-logo-box">HY</div>
+          <div>
+            <div class="t-caption">UNIVERSITY OF ILORIN · SWEP GROUP H</div>
+            <div style="font-weight: 900; font-size: 14px; letter-spacing: -0.01em;">ENGINEERING EXHIBITION 2026</div>
           </div>
         </div>
 
-        <div class="md:col-span-5 relative flex justify-center">
-          <div class="fig-brutal aspect-[4/3] w-full max-w-md">
-            <img src="image1.jpg" alt="HYPERION product system overview">
-          </div>
+        <div class="s1-headline">
+          <span class="label" style="margin-bottom: 12px;">CASHLESS CAMPUS MOBILITY</span>
+          <div class="t-display">HYPERION<br>TRANSIT.</div>
+          <p class="t-body" style="margin-top: 14px; font-weight: 600; max-width: 480px;">
+            Dual NFC Card &amp; Dynamic QR Bus Fare Validation Architecture with Edge IoT Telematics.
+          </p>
+        </div>
+
+        <div>
+          <span class="label outline">DEFENSE DEMO · SEPT 2026</span>
         </div>
       </div>
-    </section>
 
-    <!-- SLIDE 2 — Problem Statement -->
-    <section class="slide" data-index="1">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">The Problem</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          Campus transit is still stuck in cash
-        </h2>
-        <p class="text-[var(--sub)] font-medium text-base mt-1 max-w-2xl">
-          Three critical friction points compound daily for students, drivers, and park administrators alike.
+      <div class="s1-right">
+        <div class="s1-list-item active-item" onclick="goToSlide(1)">1. Campus Transit Crisis &amp; Solution</div>
+        <div class="s1-list-item" onclick="goToSlide(2)">2. Full-Stack System Architecture</div>
+        <div class="s1-list-item" onclick="goToSlide(3)">3. ESP32 Hardware Bus Validator Pod</div>
+        <div class="s1-list-item" onclick="goToSlide(4)">4. Automated Passenger Counting (APC)</div>
+        <div class="s1-list-item" onclick="goToSlide(5)">5. Edge Cryptographic Offline Resilience</div>
+        <div class="s1-list-item" onclick="goToSlide(6)">6. GPS &amp; Fleet Telematics Safety</div>
+        <div class="s1-list-item" onclick="goToSlide(7)">7. Automated Paystack Wallet System</div>
+        <div class="s1-list-item" onclick="goToSlide(8)">8. Technical Benchmark &amp; Live Demo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 2: PROBLEM VS SOLUTION
+       ======================================================== -->
+  <div class="slide s2" data-slide="2">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">02</div>
+        <span class="header-title">The Campus Transit Crisis</span>
+      </div>
+      <span class="label">PROBLEM &amp; VALUE PROPOSITION</span>
+    </div>
+    <div class="slide-body">
+      <div class="s2-left">
+        <span class="t-caption" style="margin-bottom: 8px;">EXISTING BOTTLENECK</span>
+        <div class="t-headline" style="margin-bottom: 16px;">The Friction of Cash on Campus</div>
+        <p class="t-body" style="margin-bottom: 16px;">
+          Over 30,000 university students rely on campus shuttle buses daily. Physical cash payments cause severe cash-change shortages, delayed boarding queues, fare dispute friction, and untracked driver revenue leakages.
+        </p>
+        <p class="t-body">
+          <strong>The Hyperion Solution:</strong> A unified digital wallet pegged at ₦250 = 1 Ride Point. Students authenticate via physical NFC student ID or dynamic driver QR code for instantaneous, cashless boarding.
         </p>
       </div>
-
-      <div class="grid md:grid-cols-3 gap-5">
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div class="w-12 h-12 bg-black border-2 border-black flex items-center justify-center mb-4 text-white shadow-[2.5px_2.5px_0px_var(--primary)]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M9 12h6M12 9v6"/></svg>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Cash Friction &amp; Change Scarcity
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Drivers lose minutes per boarding hunting for change notes, and students are routinely turned away or delayed for lacking exact denominations.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider">Bottleneck: High Fare Delay</span>
-          </div>
-        </div>
-
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div class="w-12 h-12 bg-black border-2 border-black flex items-center justify-center mb-4 text-white shadow-[2.5px_2.5px_0px_var(--primary)]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Zero Transit Visibility
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              No digital log of ridership, route performance, or collected revenue exists. Fare leakage and unaccounted cash remain undetected.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider">Bottleneck: Revenue Leakage</span>
-          </div>
-        </div>
-
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div class="w-12 h-12 bg-black border-2 border-black flex items-center justify-center mb-4 text-white shadow-[2.5px_2.5px_0px_var(--primary)]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Long Boarding Queues
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Manual physical collections bottleneck every stop, delaying shuttles and stacking up frustrated students during peak morning &amp; evening lecture hours.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider">Bottleneck: Peak Commute Congestion</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 3 — Unified Solution -->
-    <section class="slide" data-index="2">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">The Architecture</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          One system, <span class="highlight-skew"><span>three connected pillars</span></span>
-        </h2>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-5">
-        <!-- Pillar 1 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="font-mono text-xs font-bold bg-black text-white px-2 py-0.5 border border-black">PILLAR 01</span>
-              <span class="font-heading font-bold text-xs uppercase text-[var(--primary)] tracking-wider">Frontend App</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-1">
-              Student Mobile &amp; Web App
-            </h3>
-            <p class="text-[var(--sub)] text-xs sm:text-sm font-medium leading-relaxed mb-3">
-              Top up via dedicated virtual bank accounts, monitor live point balances, and tap to board with dynamic QR codes.
-            </p>
-          </div>
-          <div class="fig-brutal aspect-[16/10] mt-auto">
-            <img src="image2.png" alt="Student app interface">
-          </div>
-        </div>
-
-        <!-- Pillar 2 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="font-mono text-xs font-bold bg-[var(--primary)] text-white px-2 py-0.5 border border-black">PILLAR 02</span>
-              <span class="font-heading font-bold text-xs uppercase text-[var(--primary)] tracking-wider">IoT Hardware</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-1">
-              ESP32 Validator Pod
-            </h3>
-            <p class="text-[var(--sub)] text-xs sm:text-sm font-medium leading-relaxed mb-3">
-              Onboard device reads RFID cards &amp; QR tokens in &lt;300ms, deducts fare, and provides OLED/LED feedback.
-            </p>
-          </div>
-          <div class="fig-brutal aspect-[16/10] mt-auto">
-            <img src="image5.JPG" alt="ESP32 validator pod hardware">
-          </div>
-        </div>
-
-        <!-- Pillar 3 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="font-mono text-xs font-bold bg-[#0A0E11] text-white px-2 py-0.5 border border-black">PILLAR 03</span>
-              <span class="font-heading font-bold text-xs uppercase text-[var(--primary)] tracking-wider">Operations</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-1">
-              Admin Command Portal
-            </h3>
-            <p class="text-[var(--sub)] text-xs sm:text-sm font-medium leading-relaxed mb-3">
-              Live operational dashboards for ridership telemetry, revenue reconciliation, fleet uptime, and RFID provisioning.
-            </p>
-          </div>
-          <div class="fig-brutal aspect-[16/10] mt-auto bg-black flex items-center justify-center p-4">
-            <div class="w-full h-full border-2 border-dashed border-[#334155] flex flex-col items-center justify-center text-center p-2">
-              <span class="font-mono text-xs text-[var(--secondary)] font-bold">TELEMETRY STREAM: ACTIVE</span>
-              <span class="font-heading text-white text-base font-bold uppercase mt-1">FLEET OPS PORTAL</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 4 — Student Journey -->
-    <section class="slide" data-index="3">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">User Experience</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          From top-up to boarding, <span class="highlight-skew"><span>in four steps</span></span>
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Step 1 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-mono text-xs font-bold bg-black text-white px-2.5 py-0.5 border border-black">STEP 01</span>
-              <span class="font-mono text-xs text-[var(--sub)]">01/04</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Dedicated NUBAN
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Every student is automatically provisioned a personal virtual bank account on registration via Paystack.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-black">
-            <span class="font-mono text-xs font-bold text-black uppercase">Zero Manual Onboarding</span>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-mono text-xs font-bold bg-black text-white px-2.5 py-0.5 border border-black">STEP 02</span>
-              <span class="font-mono text-xs text-[var(--sub)]">02/04</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Instant Point Top-Up
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Bank transfer converts instantly into transit points via automated real-time webhooks (₦250 = 1 pt).
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-black">
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase">Realtime Webhook Sync</span>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="brutal-card p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-mono text-xs font-bold bg-black text-white px-2.5 py-0.5 border border-black">STEP 03</span>
-              <span class="font-mono text-xs text-[var(--sub)]">03/04</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              QR Scan or RFID Tap
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Students board shuttles and present either their dynamic in-app QR code or physical RFID campus card.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-black">
-            <span class="font-mono text-xs font-bold text-black uppercase">Dual-Validation Mode</span>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="brutal-card p-5 flex flex-col justify-between border-2 border-black" style="box-shadow: 4px 4px 0px var(--secondary);">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-mono text-xs font-bold bg-[var(--secondary)] text-black px-2.5 py-0.5 border border-black">STEP 04</span>
-              <span class="font-mono text-xs text-[var(--secondary-dark)] font-bold">CLEAR</span>
-            </div>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Sub-Second Clearance
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              1 point is deducted instantly, buzzer/LED triggers green, and the turnstile opens in &lt;300 milliseconds.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-black">
-            <span class="font-mono text-xs font-bold text-[var(--secondary-dark)] uppercase">&lt;300ms Validation Gate</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 5 — Hardware -->
-    <section class="slide" data-index="4">
-      <div class="grid md:grid-cols-12 gap-8 items-center h-full">
-        <div class="md:col-span-7 flex flex-col items-start">
-          <span class="brutal-tag brutal-tag-primary mb-2">Embedded Systems</span>
-          <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-1 mb-3">
-            The Validator Pod
-          </h2>
-          <p class="text-[var(--sub)] text-sm sm:text-base font-medium leading-relaxed mb-4">
-            A purpose-built onboard unit that verifies, logs, and clears fares independently with offline-resilient verification.
+      <div class="s2-right">
+        <div class="s2-block">
+          <div class="t-number">12 MIN</div>
+          <div class="t-subtitle" style="margin-top: 4px;">Queue Delay Eliminated</div>
+          <p class="t-body" style="margin-top: 8px; opacity: 0.85;">
+            Sub-second tap-and-go boarding accelerates passenger entry by over 80% compared to cash handling.
           </p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mb-5">
-            <div class="brutal-card p-3 border border-black">
-              <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase">01 / MCU Core</span>
-              <p class="font-bold text-sm text-black">ESP32 Dual-Core</p>
-              <p class="text-xs text-[var(--sub)]">Custom C++ firmware with local caching</p>
-            </div>
-            <div class="brutal-card p-3 border border-black">
-              <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase">02 / Telematics</span>
-              <p class="font-bold text-sm text-black">PN532 / RC522 RFID</p>
-              <p class="text-xs text-[var(--sub)]">13.56 MHz contactless high-speed reader</p>
-            </div>
-            <div class="brutal-card p-3 border border-black">
-              <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase">03 / Display</span>
-              <p class="font-bold text-sm text-black">0.96" I2C OLED</p>
-              <p class="text-xs text-[var(--sub)]">Realtime balance, seat count &amp; errors</p>
-            </div>
-            <div class="brutal-card p-3 border border-black">
-              <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase">04 / Access Control</span>
-              <p class="font-bold text-sm text-black">LEDs + Buzzer + Servo</p>
-              <p class="text-xs text-[var(--sub)]">Sub-300ms audio-visual feedback latch</p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <span class="brutal-tag brutal-tag-green">&lt;300ms Clearance</span>
-            <span class="brutal-tag">Offline Resilient</span>
-            <span class="brutal-tag">12V/5V Vehicle Regulated</span>
-          </div>
         </div>
-
-        <div class="md:col-span-5 grid grid-cols-1 gap-4">
-          <div class="fig-brutal aspect-[4/3] w-full">
-            <img src="IMG-20260923-WA0364.jpg" alt="Hardware testing and prototyping in lab">
-          </div>
-          <div class="brutal-card-dark p-3 text-center">
-            <span class="font-mono text-xs text-[var(--secondary)] font-bold">BENCH TESTING · GROUP H LAB</span>
-          </div>
+        <div class="s2-block">
+          <div class="t-number">100%</div>
+          <div class="t-subtitle" style="margin-top: 4px;">Audited Revenue Reconciliation</div>
+          <p class="t-body" style="margin-top: 8px; opacity: 0.85;">
+            All transactions sync to university administrative consoles with zero physical cash leakage.
+          </p>
         </div>
       </div>
-    </section>
-
-    <!-- SLIDE 6 — Fintech -->
-    <section class="slide" data-index="5">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">Fintech &amp; Point Economy</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          Money in, points out — <span class="highlight-skew"><span>automatically</span></span>
-        </h2>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-5 mb-5">
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider block mb-2">PROVISIONING</span>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Automated Virtual Accounts
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Paystack provisions a dedicated virtual NUBAN for each student on registration. Transfers credit directly to the user profile without manual receipts.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs text-black font-bold">100% AUTOMATED</span>
-          </div>
-        </div>
-
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider block mb-2">REALTIME HOOKS</span>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Instant Webhook Settlement
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Inbound bank transfers ping HYPERION’s secure API endpoint, crediting the student’s point wallet within seconds with cryptographic signature validation.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs text-black font-bold">HMAC VERIFIED</span>
-          </div>
-        </div>
-
-        <div class="brutal-card p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <span class="font-mono text-xs font-bold text-[var(--primary)] uppercase tracking-wider block mb-2">INCLUSIVITY</span>
-            <h3 class="font-heading font-bold text-xl uppercase tracking-wide text-black mb-2">
-              Booth Top-Up Fail-Safe
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed">
-              Physical agent POS terminals across campus bus stops allow cash-dependent students to exchange cash for point credits, ensuring 100% campus inclusion.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t-2 border-neutral-100">
-            <span class="font-mono text-xs text-black font-bold">ZERO STUDENT EXCLUSION</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="brutal-card p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-2 border-black" style="box-shadow: 4px 4px 0px var(--primary);">
-        <div class="flex items-center gap-4">
-          <div class="bg-black text-white px-4 py-2 border-2 border-black font-heading text-2xl sm:text-3xl font-bold tracking-wider">
-            ₦250 = 1 PT
-          </div>
-          <div>
-            <h4 class="font-heading font-bold text-lg uppercase text-black">Deterministic Point Conversion</h4>
-            <p class="text-xs sm:text-sm text-[var(--sub)] font-medium">Flat predictable fare unit prevents micro-transaction fee fatigue for everyday commuters.</p>
-          </div>
-        </div>
-        <span class="brutal-tag brutal-tag-green whitespace-nowrap">Instant Wallet Credit</span>
-      </div>
-    </section>
-
-    <!-- SLIDE 7 — Operations & Fleet Control -->
-    <section class="slide" data-index="6">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">Fleet Management</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          Two dedicated interfaces, <span class="highlight-skew"><span>one live fleet</span></span>
-        </h2>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-6 h-full">
-        <!-- Driver App -->
-        <div class="brutal-card p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="brutal-tag bg-black text-white">Driver Console</span>
-              <span class="font-mono text-xs text-[var(--primary)] font-bold">MOBILE / WEB</span>
-            </div>
-            <h3 class="font-heading font-bold text-2xl uppercase tracking-wide text-black mb-2">
-              Trip Dispatch &amp; Passenger Headcount
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed mb-4">
-              Drivers start and close trips, monitor live passenger counts, verify boarding authorizations, and track daily driver payout summaries.
-            </p>
-          </div>
-          <div class="brutal-card-dark p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-mono text-xs text-[#94A3B8]">ROUTE: PS TO CAMPUS GATE</span>
-              <span class="font-mono text-xs text-[var(--secondary)] font-bold">LIVE TRIP</span>
-            </div>
-            <div class="font-heading text-3xl font-bold text-white">18 / 18 SEATS OCCUPIED</div>
-            <div class="font-mono text-xs text-[#CBD5E1] mt-1">POD ID: #HYP-ESP32-004 · ALL FARES CLEARED</div>
-          </div>
-        </div>
-
-        <!-- Admin Portal -->
-        <div class="brutal-card p-6 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="brutal-tag brutal-tag-primary">Admin Telematics Portal</span>
-              <span class="font-mono text-xs text-black font-bold">COMMAND HQ</span>
-            </div>
-            <h3 class="font-heading font-bold text-2xl uppercase tracking-wide text-black mb-2">
-              Revenue Reconciliation &amp; Fleet Analytics
-            </h3>
-            <p class="text-[var(--sub)] text-sm font-medium leading-relaxed mb-4">
-              Transport managers track ridership surges, reconcile daily cashless revenue across routes, and provision or blacklist RFID student cards centrally.
-            </p>
-          </div>
-          <div class="brutal-card p-4 border-2 border-black bg-[#F8FAFC]">
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <span class="font-mono text-xs text-[var(--sub)] uppercase block">Daily Revenue</span>
-                <span class="font-heading text-2xl font-bold text-black">₦142,500</span>
-              </div>
-              <div>
-                <span class="font-mono text-xs text-[var(--sub)] uppercase block">Active Fleet</span>
-                <span class="font-heading text-2xl font-bold text-[var(--primary)]">12 Shuttles</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 8 — Architecture & Security -->
-    <section class="slide" data-index="7">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">Engineering Specifications</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          Engineered on a robust, <span class="highlight-skew"><span>secure stack</span></span>
-        </h2>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-5">
-        <!-- Tech Stack -->
-        <div class="brutal-card p-6">
-          <h3 class="font-heading font-bold text-2xl uppercase tracking-wide text-black mb-4 flex items-center gap-2">
-            <span class="w-3 h-3 bg-[var(--primary)]"></span>
-            Full-Stack Technology Stack
-          </h3>
-          <div class="flex flex-wrap gap-2.5">
-            <span class="brutal-tag">Node.js</span>
-            <span class="brutal-tag">Express 5</span>
-            <span class="brutal-tag">TypeScript</span>
-            <span class="brutal-tag">MongoDB Atlas</span>
-            <span class="brutal-tag">Next.js 15</span>
-            <span class="brutal-tag">React Native / Expo</span>
-            <span class="brutal-tag">ESP32 C++ / FreeRTOS</span>
-            <span class="brutal-tag">Tailwind CSS</span>
-            <span class="brutal-tag">Paystack Virtual Accounts</span>
-          </div>
-        </div>
-
-        <!-- Security -->
-        <div class="brutal-card p-6">
-          <h3 class="font-heading font-bold text-2xl uppercase tracking-wide text-black mb-4 flex items-center gap-2">
-            <span class="w-3 h-3 bg-[var(--secondary)]"></span>
-            Security &amp; Isolation Architecture
-          </h3>
-          <ul class="space-y-3 font-medium text-sm text-[var(--sub)]">
-            <li class="flex items-start gap-3">
-              <span class="w-2 h-2 bg-[var(--secondary)] mt-1.5 border border-black shrink-0"></span>
-              <span><b class="text-black font-heading uppercase text-base">JWT Session Authentication:</b> Cryptographically verified tokens for mobile, web, and driver dispatch sessions.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-2 h-2 bg-[var(--secondary)] mt-1.5 border border-black shrink-0"></span>
-              <span><b class="text-black font-heading uppercase text-base">Bcrypt Hashing:</b> Salted password and PIN encryption protecting user credentials at rest.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="w-2 h-2 bg-[var(--secondary)] mt-1.5 border border-black shrink-0"></span>
-              <span><b class="text-black font-heading uppercase text-base">Pod Device Key Isolation:</b> Every ESP32 pod authenticates with dedicated API keys to prevent device spoofing.</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 9 — Measurable Impact -->
-    <section class="slide" data-index="8">
-      <div class="mb-4">
-        <span class="brutal-tag brutal-tag-primary mb-2">Metrics &amp; Feasibility</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-2">
-          What HYPERION delivers <span class="highlight-skew"><span>on day one</span></span>
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <div class="brutal-card p-6 text-center flex flex-col justify-center">
-          <span class="font-heading text-4xl sm:text-5xl font-bold text-[var(--primary)] block leading-none mb-2">
-            &lt;300ms
-          </span>
-          <span class="font-heading font-bold text-lg uppercase tracking-wider text-black">Validation Speed</span>
-          <p class="text-xs text-[var(--sub)] font-medium mt-1">Instant tap-and-go boarding clearance</p>
-        </div>
-
-        <div class="brutal-card p-6 text-center flex flex-col justify-center">
-          <span class="font-heading text-4xl sm:text-5xl font-bold text-black block leading-none mb-2">
-            100%
-          </span>
-          <span class="font-heading font-bold text-lg uppercase tracking-wider text-black">Cashless Operations</span>
-          <p class="text-xs text-[var(--sub)] font-medium mt-1">Eliminates physical change hunt</p>
-        </div>
-
-        <div class="brutal-card p-6 text-center flex flex-col justify-center">
-          <span class="font-heading text-4xl sm:text-5xl font-bold text-[var(--secondary-dark)] block leading-none mb-2">
-            ZERO
-          </span>
-          <span class="font-heading font-bold text-lg uppercase tracking-wider text-black">Revenue Leakage</span>
-          <p class="text-xs text-[var(--sub)] font-medium mt-1">Direct digital deposit &amp; audit trail</p>
-        </div>
-
-        <div class="brutal-card p-6 text-center flex flex-col justify-center">
-          <span class="font-heading text-4xl sm:text-5xl font-bold text-[var(--primary)] block leading-none mb-2">
-            DUAL
-          </span>
-          <span class="font-heading font-bold text-lg uppercase tracking-wider text-black">QR + RFID Sync</span>
-          <p class="text-xs text-[var(--sub)] font-medium mt-1">Supports app and offline physical cards</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 10 — Roadmap & Closing -->
-    <section class="slide" data-index="9">
-      <div class="mb-3">
-        <span class="brutal-tag brutal-tag-primary mb-2">Future Roadmap</span>
-        <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black mt-1">
-          Where HYPERION goes next
-        </h2>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-4 mb-4">
-        <div class="brutal-card p-4">
-          <span class="font-mono text-xs font-bold bg-black text-white px-2 py-0.5 border border-black mb-2 inline-block">PHASE 1</span>
-          <h3 class="font-heading font-bold text-lg uppercase text-black mb-1">Prototype Deployment</h3>
-          <p class="text-[var(--sub)] text-xs font-medium leading-relaxed">Validator pod, mobile web app, and admin portal deployed across pilot campus shuttle route.</p>
-        </div>
-
-        <div class="brutal-card p-4">
-          <span class="font-mono text-xs font-bold bg-[var(--primary)] text-white px-2 py-0.5 border border-black mb-2 inline-block">PHASE 2</span>
-          <h3 class="font-heading font-bold text-lg uppercase text-black mb-1">Fleet GPS &amp; AI Counting</h3>
-          <p class="text-[var(--sub)] text-xs font-medium leading-relaxed">Automated optical passenger counting sensors and live campus route ETA tracking for students.</p>
-        </div>
-
-        <div class="brutal-card p-4">
-          <span class="font-mono text-xs font-bold bg-[var(--secondary)] text-black px-2 py-0.5 border border-black mb-2 inline-block">PHASE 3</span>
-          <h3 class="font-heading font-bold text-lg uppercase text-black mb-1">Solar E-Paper Kiosks</h3>
-          <p class="text-[var(--sub)] text-xs font-medium leading-relaxed">Off-grid bus stop balance check kiosks with solar power and emergency point tap capabilities.</p>
-        </div>
-      </div>
-
-      <!-- Team Unilorin Photo & Closing Card -->
-      <div class="brutal-card p-4 flex flex-col md:flex-row items-center justify-between gap-4 border-2 border-black" style="box-shadow: 4px 4px 0px var(--primary);">
-        <div class="flex items-center gap-4">
-          <div class="fig-brutal w-16 h-16 shrink-0">
-            <img src="IMG-20260923-WA0366.jpg" alt="Team Group H SWEP Unilorin engineers">
-          </div>
-          <div>
-            <h3 class="font-heading font-bold text-xl uppercase text-black">Team Group H — University of Ilorin</h3>
-            <p class="text-xs sm:text-sm text-[var(--sub)] font-medium">SWEP 200 Engineering Exhibition Submission · Department of Computer &amp; Electrical Engineering</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="brutal-tag brutal-tag-green">DEMO READY</span>
-          <span class="brutal-tag brutal-tag-primary">THANK YOU</span>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Bottom Navigation HUD -->
-  <footer id="controls">
-    <button id="prev" class="brutal-btn w-10 h-10" aria-label="Previous slide">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    
-    <div class="flex items-center gap-4">
-      <div id="dots"></div>
-      <div class="brutal-card px-3 py-1 font-mono text-xs font-bold text-black" style="box-shadow: 2px 2px 0px #0A0E11;">
-        <span id="counter">01 / 10</span>
-      </div>
-      <span class="hidden md:inline-block font-mono text-[11px] text-[var(--sub)] bg-[#F3F4F6] border border-black px-2 py-0.5">
-        KEYS: [ ← / → ]
-      </span>
     </div>
+  </div>
 
-    <button id="next" class="brutal-btn w-10 h-10" aria-label="Next slide">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
-    </button>
-  </footer>
+  <!-- ========================================================
+       SLIDE 3: SYSTEM ARCHITECTURE
+       ======================================================== -->
+  <div class="slide s3" data-slide="3">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">03</div>
+        <span class="header-title">Full-Stack Architecture</span>
+      </div>
+      <span class="label outline">HARDWARE-SOFTWARE CO-DESIGN</span>
+    </div>
+    <div class="slide-body">
+      <div class="s3-card">
+        <div class="s3-card-top">
+          <span class="t-caption">LAYER 01</span>
+          <span class="tag">CLIENT APP</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Student Mobile App</div>
+          <p class="t-body">React Native &amp; Next.js PWA. Instant camera QR scanner, live wallet balance, Paystack virtual account transfer details, and real-time bus capacity radar.</p>
+        </div>
+        <span class="t-caption">TECH: REACT NATIVE · EXPO · TAILWIND</span>
+      </div>
+
+      <div class="s3-card">
+        <div class="s3-card-top">
+          <span class="t-caption">LAYER 02</span>
+          <span class="tag">EDGE IoT</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">ESP32 Hardware Pod</div>
+          <p class="t-body">Dedicated bus entry validator running FreeRTOS with PN532 RFID/NFC, SSD1306 OLED, audio-visual feedback, and solenoid barrier unlock triggers.</p>
+        </div>
+        <span class="t-caption">TECH: C++ · ESP-IDF · FREERTOS · PN532</span>
+      </div>
+
+      <div class="s3-card">
+        <div class="s3-card-top">
+          <span class="t-caption">LAYER 03</span>
+          <span class="tag">BACKEND API</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Unified Express 5 Core</div>
+          <p class="t-body">High-throughput REST API with atomic MongoDB transactions. Routes both phone QR scans and headless hardware RFID taps through unified endpoints.</p>
+        </div>
+        <span class="t-caption">TECH: NODE.JS · TYPESCRIPT · MONGOOSE</span>
+      </div>
+
+      <div class="s3-card">
+        <div class="s3-card-top">
+          <span class="t-caption">LAYER 04</span>
+          <span class="tag">FINTECH &amp; FLEET</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Paystack NUBAN &amp; Cloud</div>
+          <p class="t-body">Automated dedicated bank account generation per student, Webhook signature verification, real-time fleet telematics, and administrative audit dashboards.</p>
+        </div>
+        <span class="t-caption">TECH: PAYSTACK WEBHOOKS · MONGODB ATLAS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 4: HARDWARE POD SHOWCASE (IMAGE 1)
+       ======================================================== -->
+  <div class="slide s-hardware" data-slide="4">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">04</div>
+        <span class="header-title">Hardware Validator Pod</span>
+      </div>
+      <span class="label green">PROTOTYPE SHOWCASE</span>
+    </div>
+    <div class="slide-body">
+      <div class="hardware-photo-pane">
+        <img src="IMG-20260923-WA0364.jpg" alt="Hyperion Hardware Pod Prototype" class="hardware-img-frame">
+        <div class="hardware-caption-badge">PROTOTYPE: DUAL NFC / RFID VALIDATOR</div>
+      </div>
+      <div class="hardware-spec-pane">
+        <span class="t-caption">EDGE EMBEDDED COMPUTING</span>
+        <div class="t-headline" style="margin-top: 4px; margin-bottom: 12px;">Bus Entrance Validator</div>
+        <p class="t-body">
+          Instead of relying on driver phone screens, the physical <strong>Hyperion Validator Pod</strong> is hard-mounted at the bus passenger entry. Students tap their RFID smart cards or NFC phones for instantaneous boarding verification.
+        </p>
+        <div class="spec-list">
+          <div class="spec-item highlight">
+            <span style="font-weight: 800;">Microcontroller:</span>
+            <span class="mono">ESP32 Dual-Core 240MHz (Wi-Fi/BLE)</span>
+          </div>
+          <div class="spec-item">
+            <span style="font-weight: 800;">NFC / RFID Module:</span>
+            <span class="mono">PN532 / RC522 (13.56 MHz ISO14443A)</span>
+          </div>
+          <div class="spec-item">
+            <span style="font-weight: 800;">HMI Visual Screen:</span>
+            <span class="mono">0.96" I2C OLED (SSD1306) Live Status</span>
+          </div>
+          <div class="spec-item">
+            <span style="font-weight: 800;">Hardware Security:</span>
+            <span class="mono">X-Device-Key API Authentication</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 5: AUTOMATED PASSENGER COUNTING (IMAGE 2)
+       ======================================================== -->
+  <div class="slide s-hardware" data-slide="5">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">05</div>
+        <span class="header-title">Automated Passenger Counting (APC)</span>
+      </div>
+      <span class="label pink">CAPACITY &amp; SENSORS</span>
+    </div>
+    <div class="slide-body">
+      <div class="hardware-photo-pane">
+        <img src="IMG-20260923-WA0369.jpg" alt="Sensors and Assembly" class="hardware-img-frame">
+        <div class="hardware-caption-badge">HARDWARE: DUAL ToF LASER SENSORS</div>
+      </div>
+      <div class="hardware-spec-pane">
+        <span class="t-caption">EDGE ALGORITHMIC DETECTION</span>
+        <div class="t-headline" style="margin-top: 4px; margin-bottom: 12px;">Real-Time Bus Capacity</div>
+        <p class="t-body">
+          Eliminating overcrowded stops by broadcasting real-time bus seating occupancy directly to student mobile apps before the bus arrives.
+        </p>
+        <div class="spec-list">
+          <div class="spec-item">
+            <div>
+              <div style="font-weight: 800;">Dual ToF Laser Distance Grid</div>
+              <div class="t-body" style="font-size: 13px; opacity: 0.8;">Beam A → Beam B sequence computes boarding (+1).</div>
+            </div>
+            <span class="tag">ENTRY</span>
+          </div>
+          <div class="spec-item">
+            <div>
+              <div style="font-weight: 800;">Directional State Machine</div>
+              <div class="t-body" style="font-size: 13px; opacity: 0.8;">Beam B → Beam A sequence computes deboarding (-1).</div>
+            </div>
+            <span class="tag">EXIT</span>
+          </div>
+          <div class="spec-item highlight">
+            <div>
+              <div style="font-weight: 800;">Live App Radar Display</div>
+              <div class="t-body" style="font-size: 13px;">"Bus #04: 18/22 Seats Occupied (82% Full)"</div>
+            </div>
+            <span class="tag">RADAR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 6: OFFLINE RESILIENCE & EDGE CRYPTOGRAPHY
+       ======================================================== -->
+  <div class="slide s6" data-slide="6">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">06</div>
+        <span class="header-title">Offline Edge Resilience</span>
+      </div>
+      <span class="label">ZERO NETWORK DOWNTIME</span>
+    </div>
+    <div class="slide-body">
+      <div class="s6-step">
+        <div>
+          <div class="s6-step-num">01</div>
+          <div class="t-title" style="margin-bottom: 8px;">Network Dead-Zone Detection</div>
+          <p class="t-body">When buses enter campus basement workshops or cellular dead zones, the ESP32 automatically enters localized offline mode without blocking boarding.</p>
+        </div>
+        <span class="t-caption">FALLBACK ENGINE</span>
+      </div>
+
+      <div class="s6-step">
+        <div>
+          <div class="s6-step-num">02</div>
+          <div class="t-title" style="margin-bottom: 8px;">Local Flash Cache Validation</div>
+          <p class="t-body">Pre-cached cryptographic student UID whitelist in ESP32 SPIFFS/LittleFS flash memory validates passenger cards in under 45 milliseconds.</p>
+        </div>
+        <span class="t-caption">LITTLEFS SECURE CACHE</span>
+      </div>
+
+      <div class="s6-step">
+        <div>
+          <div class="s6-step-num">03</div>
+          <div class="t-title" style="margin-bottom: 8px;">DS3231 RTC Time-Stamp</div>
+          <p class="t-body">Onboard battery-backed Real-Time Clock signs each tap with an immutable monotonic sequence counter to prevent replay attacks and clock skew.</p>
+        </div>
+        <span class="t-caption">IMMUTABLE LOGGING</span>
+      </div>
+
+      <div class="s6-step">
+        <div>
+          <div class="s6-step-num">04</div>
+          <div class="t-title" style="margin-bottom: 8px;">Auto Reconnect Batch Sync</div>
+          <p class="t-body">Once 4G LTE or campus Wi-Fi signal is re-established, the pod flushes its queued transactions to the cloud backend for atomic reconciliation.</p>
+        </div>
+        <span class="t-caption">BATCH RECONCILIATION</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 7: FLEET TELEMATICS & IMU (IMAGE 3)
+       ======================================================== -->
+  <div class="slide s-hardware" data-slide="7">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">07</div>
+        <span class="header-title">Vehicle Telematics &amp; Fleet Safety</span>
+      </div>
+      <span class="label green">IOT SENSORS</span>
+    </div>
+    <div class="slide-body">
+      <div class="hardware-photo-pane">
+        <img src="IMG-20260923-WA0370.jpg" alt="Fleet Telematics Circuit" class="hardware-img-frame">
+        <div class="hardware-caption-badge">MODULE: GPS + 6-AXIS IMU TELEMATICS</div>
+      </div>
+      <div class="hardware-spec-pane">
+        <span class="t-caption">BLACK-BOX VEHICLE TELEMETRY</span>
+        <div class="t-headline" style="margin-top: 4px; margin-bottom: 12px;">Live Transit Radar</div>
+        <p class="t-body">
+          The Hyperion Pod functions as a full-featured transit black-box, streaming real-time vehicle telemetry to administrative dashboards and student route trackers.
+        </p>
+        <div class="spec-list">
+          <div class="spec-item">
+            <span style="font-weight: 800;">GPS Location Tracking:</span>
+            <span class="mono">NEO-6M GPS (Latitude, Longitude, Speed)</span>
+          </div>
+          <div class="spec-item highlight">
+            <span style="font-weight: 800;">Driver Safety &amp; G-Force:</span>
+            <span class="mono">MPU6050 6-Axis IMU (Harsh Braking / Tilt)</span>
+          </div>
+          <div class="spec-item">
+            <span style="font-weight: 800;">Emergency Panic Alert:</span>
+            <span class="mono">Hardware SOS Button with GPS Timestamp</span>
+          </div>
+          <div class="spec-item">
+            <span style="font-weight: 800;">Geofencing Engine:</span>
+            <span class="mono">Automated Terminal &amp; Bus-Stop Detection</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 8: PAYSTACK WALLET INTEGRATION
+       ======================================================== -->
+  <div class="slide s8" data-slide="8">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">08</div>
+        <span class="header-title">Financial Infrastructure</span>
+      </div>
+      <span class="label outline">PAYSTACK NUBAN INTEGRATION</span>
+    </div>
+    <div class="slide-body">
+      <div class="s8-left">
+        <div class="s8-stat-circle">
+          <span class="t-number">₦250</span>
+          <span class="t-caption" style="margin-top: 4px;">= 1 RIDE POINT</span>
+        </div>
+        <div class="t-title" style="text-align: center;">Permanent Dedicated NUBAN</div>
+        <p class="t-body" style="text-align: center; margin-top: 8px; font-size: 14px; opacity: 0.85;">
+          Every student receives a personal Wema/Titan bank account number linked to their matriculation profile.
+        </p>
+      </div>
+      <div class="s8-right">
+        <div class="s8-metric-row">
+          <div>
+            <div class="t-subtitle">Direct Bank Transfer Top-Up</div>
+            <p class="t-body" style="font-size: 14px; opacity: 0.85;">Students transfer any amount (e.g. ₦1,000 → 4 points) via USSD, OPay, Palmpay, or commercial banking apps.</p>
+          </div>
+        </div>
+        <div class="s8-metric-row">
+          <div>
+            <div class="t-subtitle">Cryptographic Webhook Ingestion</div>
+            <p class="t-body" style="font-size: 14px; opacity: 0.85;">HMAC SHA-512 Paystack signature verification credits wallets in under 2 seconds with automatic leftover kobo pooling.</p>
+          </div>
+        </div>
+        <div class="s8-metric-row">
+          <div>
+            <div class="t-subtitle">Admin Booth Point Adjustment</div>
+            <p class="t-body" style="font-size: 14px; opacity: 0.85;">Physical top-up fallback station allowing accredited university agents to credit student accounts on site.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 9: COMPARISON MATRIX
+       ======================================================== -->
+  <div class="slide s9" data-slide="9">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">09</div>
+        <span class="header-title">Competitive Comparison</span>
+      </div>
+      <span class="label">ENGINEERING BENCHMARK</span>
+    </div>
+    <div class="slide-body">
+      <table class="raw-table">
+        <thead>
+          <tr>
+            <th>System Feature</th>
+            <th>Cash / Paper Tickets</th>
+            <th>Generic Ride Apps</th>
+            <th>Commercial POS</th>
+            <th>Hyperion Transit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td>Boarding Speed</td>
+            <td>15 – 30 seconds</td>
+            <td>8 – 15 seconds</td>
+            <td>10 – 20 seconds</td>
+            <td>&lt; 0.5 seconds (NFC Tap)</td>
+          </tr>
+          <tr>
+            <td>Offline Resilience</td>
+            <td>No tracking</td>
+            <td>Fails completely</td>
+            <td>Fails completely</td>
+            <td>Store &amp; Forward (RTC Cache)</td>
+          </tr>
+          <tr class="highlight">
+            <td>Hardware Integration</td>
+            <td>None</td>
+            <td>None</td>
+            <td>Closed POS terminal</td>
+            <td>ESP32 + ToF + GPS + OLED</td>
+          </tr>
+          <tr>
+            <td>Passenger Counting</td>
+            <td>Manual estimation</td>
+            <td>None</td>
+            <td>None</td>
+            <td>Automated Dual ToF Laser</td>
+          </tr>
+          <tr class="highlight">
+            <td>Audit &amp; Reconciliation</td>
+            <td>High leakage (&gt;20%)</td>
+            <td>Cloud only</td>
+            <td>Delayed settlement</td>
+            <td>100% Real-Time Ledger</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 10: LATENCY BENCHMARKS
+       ======================================================== -->
+  <div class="slide s10" data-slide="10">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">10</div>
+        <span class="header-title">Performance &amp; Latency</span>
+      </div>
+      <span class="label pink">EMPIRICAL BENCHMARKS</span>
+    </div>
+    <div class="slide-body">
+      <div class="s10-chart-pane">
+        <div class="t-headline" style="margin-bottom: 20px;">System Latency Benchmarks</div>
+        
+        <div style="margin-bottom: 16px;">
+          <div class="t-caption">1. OFFLINE EDGE RFID TAP (<span class="mono">45ms</span>)</div>
+          <div class="bar-track">
+            <div class="bar-fill bg-green" style="width: 15%;">45ms</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <div class="t-caption">2. ONLINE HARDWARE RFID SCAN (<span class="mono">180ms</span>)</div>
+          <div class="bar-track">
+            <div class="bar-fill bg-pink" style="width: 38%;">180ms</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <div class="t-caption">3. MOBILE CAMERA DYNAMIC QR SCAN (<span class="mono">420ms</span>)</div>
+          <div class="bar-track">
+            <div class="bar-fill bg-gray" style="width: 72%;">420ms</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-caption">4. PAYSTACK WEBHOOK RECONCILIATION (<span class="mono">1.2s</span>)</div>
+          <div class="bar-track">
+            <div class="bar-fill bg-black c-white" style="width: 95%;">1.2s</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="s10-insights-pane">
+        <div class="s10-stat-card">
+          <div class="t-number">&lt; 200MS</div>
+          <div class="t-subtitle" style="margin-top: 4px;">Average Hardware Tap Validation</div>
+          <p class="t-body" style="font-size: 13px; margin-top: 4px; opacity: 0.85;">Hardware SPI interface allows ultra-low latency card UID extraction.</p>
+        </div>
+        <div class="s10-stat-card">
+          <div class="t-number">99.98%</div>
+          <div class="t-subtitle" style="margin-top: 4px;">Transaction Success Rate</div>
+          <p class="t-body" style="font-size: 13px; margin-top: 4px; opacity: 0.85;">Robust fault tolerance with idempotency keys prevents duplicate billing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 11: LIVE DEMO VERIFICATION
+       ======================================================== -->
+  <div class="slide s11" data-slide="11">
+    <div class="slide-header">
+      <div class="header-left">
+        <div class="header-brand-box">11</div>
+        <span class="header-title">Live Exhibition Verification</span>
+      </div>
+      <span class="label green">EXHIBITION BOOTH DEMO</span>
+    </div>
+    <div class="slide-body">
+      <div class="s11-card">
+        <div class="s3-card-top">
+          <span class="t-caption">DEMO STAGE 01</span>
+          <span class="tag">CARD TAP</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Hardware Pod Card Tap</div>
+          <p class="t-body">Tap student RFID card on the ESP32 validator. The OLED displays <em>"₦250 Deducted | 4 Pts Remaining"</em>, buzzer double-beeps, and green LED activates.</p>
+        </div>
+        <span class="t-caption">TRIGGER: PN532 + POST /api/scans</span>
+      </div>
+
+      <div class="s11-card">
+        <div class="s3-card-top">
+          <span class="t-caption">DEMO STAGE 02</span>
+          <span class="tag">PHONE QR</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Driver QR Boarding</div>
+          <p class="t-body">Open student mobile camera, scan the driver’s rotating boarding QR code. Wallet updates instantly with zero PIN friction required.</p>
+        </div>
+        <span class="t-caption">TRIGGER: ROTATING HYP TOKEN</span>
+      </div>
+
+      <div class="s11-card">
+        <div class="s3-card-top">
+          <span class="t-caption">DEMO STAGE 03</span>
+          <span class="tag">NUBAN TOP-UP</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Live Paystack Deposit</div>
+          <p class="t-body">Transfer ₦500 from a real bank app to the student’s dedicated NUBAN. Paystack webhook fires and credits 2 ride points within seconds.</p>
+        </div>
+        <span class="t-caption">TRIGGER: PAYSTACK WEBHOOK API</span>
+      </div>
+
+      <div class="s11-card">
+        <div class="s3-card-top">
+          <span class="t-caption">DEMO STAGE 04</span>
+          <span class="tag">ADMIN CONSOLE</span>
+        </div>
+        <div>
+          <div class="t-title" style="margin-bottom: 8px;">Live Telematics &amp; Trips</div>
+          <p class="t-body">Admin laptop console reflects real-time trip logs, vehicle GPS locations, passenger occupancy, and financial reconciliation.</p>
+        </div>
+        <span class="t-caption">TRIGGER: ADMIN DASHBOARD /api/admin/trips</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SLIDE 12: CONCLUSION & TEAM
+       ======================================================== -->
+  <div class="slide s12" data-slide="12">
+    <div class="slide-content">
+      <div class="s12-left">
+        <div class="s1-brand">
+          <div class="s1-logo-box" style="background: var(--white); color: var(--black);">HY</div>
+          <span style="font-weight: 900; font-size: 16px; letter-spacing: -0.01em;">HYPERION SYSTEMS</span>
+        </div>
+
+        <div>
+          <span class="label" style="background: var(--black); color: var(--white); margin-bottom: 12px;">CONCLUSION</span>
+          <div class="t-display" style="font-size: clamp(34px, 4.5vw, 64px);">Smart.<br>Cashless.<br>Connected.</div>
+          <p class="t-body" style="margin-top: 16px; font-weight: 600; max-width: 440px;">
+            Hyperion delivers a reliable, robust, and scalable transit ecosystem engineered specifically for African university campuses.
+          </p>
+        </div>
+
+        <div>
+          <span class="label outline">SWEP 200 · UNIVERSITY OF ILORIN</span>
+        </div>
+      </div>
+
+      <div class="s12-right">
+        <div class="s12-top">
+          <div class="t-title" style="margin-bottom: 16px;">Project Team &amp; Attribution</div>
+          <p class="t-body" style="margin-bottom: 12px;"><strong>Department:</strong> Electrical &amp; Computer Engineering</p>
+          <p class="t-body" style="margin-bottom: 12px;"><strong>Exhibition:</strong> SWEP 200 Group H (2026)</p>
+          <p class="t-body" style="margin-bottom: 12px;"><strong>Institution:</strong> University of Ilorin, Nigeria</p>
+          <p class="t-body"><strong>Repository:</strong> <span class="mono">github.com/hyperion-transit</span></p>
+        </div>
+        <div class="s12-bottom">
+          <div class="s12-bottom-block" style="cursor: pointer;" onclick="goToSlide(0)">← Restart Deck</div>
+          <div class="s12-bottom-block">Group H © 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slide-deck -->
+
+<!-- Fixed Deck Navigation UI -->
+<div class="deck-controls">
+  <button class="nav-btn" onclick="prevSlide()" title="Previous Slide (Left Arrow / Up Arrow)">←</button>
+  <div class="slide-counter" id="slideIndicator">01 / 12</div>
+  <button class="nav-btn" onclick="nextSlide()" title="Next Slide (Right Arrow / Space / Down Arrow)">→</button>
 </div>
 
 <script>
-(function(){
-  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
-  var total = slides.length;
-  var current = 0;
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+const total = slides.length;
+const slideIndicator = document.getElementById('slideIndicator');
 
-  var dotsWrap = document.getElementById('dots');
-  var counter = document.getElementById('counter');
-  var progressBar = document.getElementById('progress-bar');
-  var prevBtn = document.getElementById('prev');
-  var nextBtn = document.getElementById('next');
-  var fullscreenBtn = document.getElementById('fullscreen-btn');
-
-  // Build dots
-  slides.forEach(function(_, i){
-    var d = document.createElement('div');
-    d.className = 'dot';
-    d.setAttribute('role','button');
-    d.setAttribute('aria-label','Go to slide ' + (i+1));
-    d.addEventListener('click', function(){ goTo(i); });
-    dotsWrap.appendChild(d);
-  });
-  var dots = Array.prototype.slice.call(dotsWrap.children);
-
-  function pad(n){ return n < 10 ? '0' + n : '' + n; }
-
-  function render(prevIndex){
-    slides.forEach(function(s, i){
-      s.classList.remove('active', 'exit-left');
-      if (i === current){
-        s.classList.add('active');
-      } else if (typeof prevIndex === 'number' && i === prevIndex && prevIndex < current){
-        s.classList.add('exit-left');
-      }
-    });
-    dots.forEach(function(d, i){ d.classList.toggle('active', i === current); });
-    counter.textContent = pad(current + 1) + ' / ' + pad(total);
-    progressBar.style.width = (((current + 1) / total) * 100) + '%';
-    prevBtn.disabled = current === 0;
-    nextBtn.disabled = current === total - 1;
+function showSlide(idx) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(idx, total - 1));
+  slides[current].classList.add('active');
+  
+  const paddedCurrent = String(current + 1).padStart(2, '0');
+  const paddedTotal = String(total).padStart(2, '0');
+  if (slideIndicator) {
+    slideIndicator.textContent = `${paddedCurrent} / ${paddedTotal}`;
   }
+}
 
-  function goTo(i){
-    if (i < 0 || i >= total || i === current) return;
-    var prevIndex = current;
-    current = i;
-    render(prevIndex);
+function nextSlide() { showSlide(current + 1); }
+function prevSlide() { showSlide(current - 1); }
+function firstSlide() { showSlide(0); }
+function lastSlide() { showSlide(total - 1); }
+function goToSlide(idx) { showSlide(idx); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') { 
+    e.preventDefault(); 
+    nextSlide(); 
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { 
+    e.preventDefault(); 
+    prevSlide(); 
+  } else if (e.key === 'Home') { 
+    e.preventDefault(); 
+    firstSlide(); 
+  } else if (e.key === 'End') { 
+    e.preventDefault(); 
+    lastSlide(); 
   }
+});
 
-  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
-  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+let touchStartY = 0;
+let touchStartX = 0;
 
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-      goTo(current + 1);
-    }
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-      goTo(current - 1);
-    }
-    if (e.key === 'f' || e.key === 'F') {
-      toggleFullscreen();
-    }
-  });
+document.addEventListener('touchstart', e => { 
+  touchStartY = e.changedTouches[0].screenY; 
+  touchStartX = e.changedTouches[0].screenX; 
+});
 
-  // Touch / swipe support
-  var touchStartX = null;
-  var stage = document.getElementById('stage');
-  stage.addEventListener('touchstart', function(e){
-    touchStartX = e.changedTouches[0].clientX;
-  }, {passive:true});
-  stage.addEventListener('touchend', function(e){
-    if (touchStartX === null) return;
-    var dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 50){
-      if (dx < 0) goTo(current + 1); else goTo(current - 1);
-    }
-    touchStartX = null;
-  }, {passive:true});
-
-  // Fullscreen
-  function toggleFullscreen(){
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(function(err){
-        console.log('Fullscreen error:', err);
-      });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
+document.addEventListener('touchend', e => {
+  const touchEndY = e.changedTouches[0].screenY;
+  const touchEndX = e.changedTouches[0].screenX;
+  const diffY = touchStartY - touchEndY;
+  const diffX = touchStartX - touchEndX;
+  
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 50) nextSlide();
+    else if (diffX < -50) prevSlide();
+  } else {
+    if (diffY > 50) nextSlide();
+    else if (diffY < -50) prevSlide();
   }
-
-  if (fullscreenBtn) {
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-  }
-
-  render();
-})();
+});
 </script>
 </body>
 </html>
