@@ -930,16 +930,13 @@
               3. ESP32 Validator Pod
             </div>
             <div class="s1-list-item" onclick="goToSlide(4)">
-              4. Automated Passenger Counting
+              4. Offline Resilience
             </div>
             <div class="s1-list-item" onclick="goToSlide(5)">
-              5. Offline Resilience
+              5. Automated Paystack Wallet System
             </div>
             <div class="s1-list-item" onclick="goToSlide(6)">
-              6. Automated Paystack Wallet System
-            </div>
-            <div class="s1-list-item" onclick="goToSlide(7)">
-              7. Technical Benchmark &amp; Live Demo
+              6. Technical Benchmark &amp; Live Demo
             </div>
           </div>
         </div>
@@ -1025,8 +1022,8 @@
               </div>
               <p class="t-body">
                 The daily passenger app for students to quickly generate QR
-                boarding passes, check live bus seat availability, view wallet
-                balances, and top up funds.
+                boarding passes, view transaction logs, view wallet balances,
+                and top up funds.
               </p>
             </div>
             <span class="t-caption">TECH: REACT NATIVE · EXPO · TAILWIND</span>
@@ -1156,81 +1153,12 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 5: AUTOMATED PASSENGER COUNTING (IMAGE 2)
+       SLIDE 5: OFFLINE RESILIENCE & EDGE CRYPTOGRAPHY
        ======================================================== -->
-      <div class="slide s-hardware" data-slide="5">
+      <div class="slide s6" data-slide="5">
         <div class="slide-header">
           <div class="header-left">
             <div class="header-brand-box">05</div>
-            <span class="header-title">Live Passenger Counter (APC)</span>
-          </div>
-          <span class="label pink">CAPACITY &amp; SENSORS</span>
-        </div>
-        <div class="slide-body">
-          <div class="hardware-photo-pane">
-            <img
-              src="IMG-20260923-WA0369.jpg"
-              alt="Sensors and Assembly"
-              class="hardware-img-frame"
-            />
-            <div class="hardware-caption-badge">
-              HARDWARE: DUAL SMART LIGHT SENSORS
-            </div>
-          </div>
-          <div class="hardware-spec-pane">
-            <span class="t-caption">SMART CROWD TRACKING</span>
-            <div
-              class="t-headline"
-              style="margin-top: 4px; margin-bottom: 12px"
-            >
-              Real-Time Seat Tracking
-            </div>
-            <p class="t-body">
-              Avoids crowded bus stops by automatically counting passengers as
-              they board and exit, showing available seats on the student app
-              before the bus arrives.
-            </p>
-            <div class="spec-list">
-              <div class="spec-item">
-                <div>
-                  <div style="font-weight: 800">Dual Laser Sensor Gate</div>
-                  <div class="t-body" style="font-size: 13px; opacity: 0.8">
-                    Detects passenger stepping in → Adds 1 to passenger count.
-                  </div>
-                </div>
-                <span class="tag">BOARDING</span>
-              </div>
-              <div class="spec-item">
-                <div>
-                  <div style="font-weight: 800">Exit Direction Detection</div>
-                  <div class="t-body" style="font-size: 13px; opacity: 0.8">
-                    Detects passenger stepping out → Subtracts 1 from passenger
-                    count.
-                  </div>
-                </div>
-                <span class="tag">EXITING</span>
-              </div>
-              <div class="spec-item highlight">
-                <div>
-                  <div style="font-weight: 800">Live App Seat Radar</div>
-                  <div class="t-body" style="font-size: 13px">
-                    "Bus #04: 18/22 Seats Filled (4 Seats Available)"
-                  </div>
-                </div>
-                <span class="tag">RADAR</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-       SLIDE 6: OFFLINE RESILIENCE & EDGE CRYPTOGRAPHY
-       ======================================================== -->
-      <div class="slide s6" data-slide="6">
-        <div class="slide-header">
-          <div class="header-left">
-            <div class="header-brand-box">06</div>
             <span class="header-title">Offline Reliability</span>
           </div>
           <span class="label">WORKS WITHOUT INTERNET</span>
@@ -1299,12 +1227,12 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 7: PAYSTACK WALLET INTEGRATION
+       SLIDE 6: PAYSTACK WALLET INTEGRATION
        ======================================================== -->
-      <div class="slide s8" data-slide="7">
+      <div class="slide s8" data-slide="6">
         <div class="slide-header">
           <div class="header-left">
-            <div class="header-brand-box">07</div>
+            <div class="header-brand-box">06</div>
             <span class="header-title">Payments &amp; Top-Ups</span>
           </div>
           <span class="label outline">SEAMLESS WALLET SYSTEM</span>
@@ -1367,12 +1295,12 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 8: COMPARISON MATRIX
+       SLIDE 7: COMPARISON MATRIX
        ======================================================== -->
-      <div class="slide s9" data-slide="8">
+      <div class="slide s9" data-slide="7">
         <div class="slide-header">
           <div class="header-left">
-            <div class="header-brand-box">08</div>
+            <div class="header-brand-box">07</div>
             <span class="header-title">System Comparison</span>
           </div>
           <span class="label">WHY HYPERION WINS</span>
@@ -1408,14 +1336,14 @@
                 <td>None</td>
                 <td>None (phone only)</td>
                 <td>Generic bank POS</td>
-                <td>Custom Scanner &amp; Seat Sensors</td>
+                <td>Custom Scanner &amp; Embedded IoT</td>
               </tr>
               <tr>
-                <td>Live Seat Counting</td>
-                <td>Rough guesswork</td>
-                <td>Not available</td>
-                <td>Not available</td>
-                <td>Automatic Laser Counting</td>
+                <td>Automated Fares</td>
+                <td>Manual change issues</td>
+                <td>Manual card/in-app flow</td>
+                <td>Bank network dependent</td>
+                <td>Instant Sub-Second RFID &amp; QR</td>
               </tr>
               <tr class="highlight">
                 <td>Revenue Accounting</td>
@@ -1430,12 +1358,12 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 9: LATENCY BENCHMARKS
+       SLIDE 8: LATENCY BENCHMARKS
        ======================================================== -->
-      <div class="slide s10" data-slide="9">
+      <div class="slide s10" data-slide="8">
         <div class="slide-header">
           <div class="header-left">
-            <div class="header-brand-box">09</div>
+            <div class="header-brand-box">08</div>
             <span class="header-title">Speed &amp; Performance</span>
           </div>
           <span class="label pink">SPEED TEST RESULTS</span>
@@ -1523,12 +1451,12 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 10: LIVE DEMO VERIFICATION
+       SLIDE 9: LIVE DEMO VERIFICATION
        ======================================================== -->
-      <div class="slide s11" data-slide="10">
+      <div class="slide s11" data-slide="9">
         <div class="slide-header">
           <div class="header-left">
-            <div class="header-brand-box">10</div>
+            <div class="header-brand-box">09</div>
             <span class="header-title">Live Exhibition Demo</span>
           </div>
           <span class="label green">STEP-BY-STEP WALKTHROUGH</span>
@@ -1597,7 +1525,7 @@
                 Manager Control Screen
               </div>
               <p class="t-body">
-                The manager's laptop dashboard shows live passenger numbers, bus
+                The manager's laptop dashboard shows live boarding telemetry, bus
                 locations, ride history, and automated revenue totals in real
                 time.
               </p>
@@ -1608,9 +1536,9 @@
       </div>
 
       <!-- ========================================================
-       SLIDE 11: CONCLUSION & TEAM
+       SLIDE 10: CONCLUSION & TEAM
        ======================================================== -->
-      <div class="slide s12" data-slide="11">
+      <div class="slide s12" data-slide="10">
         <div class="slide-content">
           <div class="s12-left">
             <div class="s1-brand">
@@ -1707,7 +1635,7 @@
       >
         ←
       </button>
-      <div class="slide-counter" id="slideIndicator">01 / 11</div>
+      <div class="slide-counter" id="slideIndicator">01 / 10</div>
       <button
         class="nav-btn"
         onclick="nextSlide()"
