@@ -28,8 +28,14 @@
 #endif
 
 // 1. CONFIGURATION
-const char* WIFI_SSID     = "codiac";
-const char* WIFI_PASSWORD = "codiac01";
+// Wi-Fi priority: 1) open hotspot "hyperion"  2) strongest open network
+// in range  3) fallback "codiac" with password.
+const char* WIFI_PRIMARY_SSID     = "hyperion";  // open hotspot, no password
+const char* WIFI_FALLBACK_SSID    = "codiac";
+const char* WIFI_FALLBACK_PASS    = "codiac01";
+const unsigned long WIFI_PRIMARY_TIMEOUT_MS  = 12000;
+const unsigned long WIFI_OPEN_TIMEOUT_MS     = 10000;
+const unsigned long WIFI_FALLBACK_TIMEOUT_MS = 15000;
 const char* SERVER_URL    = "https://hyperion-4zp3.onrender.com/api/scans";
 const char* FEED_URL      = "https://hyperion-4zp3.onrender.com/api/scans/feed";
 const char* DEVICE_KEY    = "hypd_ff3c3fb6f97e40c1be09864865bc623e5009c172022ee982";
@@ -158,6 +164,103 @@ void processScan(String cardUid);
 void pollQrFeed();
 
 // ──────────────────────────────────────────────
+// Wi-Fi connection with priority fallback:
+//   1) open hotspot "hyperion" (no password)
+//   2) strongest open network found by scan (up to 3 candidates)
+//   3) fallback "codiac" with password
+// Repeats the chain until connected.
+// ──────────────────────────────────────────────
+bool wifiJoin(const char* ssid, const char* pass, unsigned long timeoutMs) {
+  WiFi.disconnect(true);
+  delay(200);
+  if (pass == NULL || pass[0] == '\0') {
+    WiFi.begin(ssid);  // open network
+  } else {
+    WiFi.begin(ssid, pass);
+  }
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < timeoutMs) {
+    delay(500);
+    digitalWrite(LED_RED, !digitalRead(LED_RED));
+  }
+  digitalWrite(LED_RED, LOW);
+  return WiFi.status() == WL_CONNECTED;
+}
+
+// Pick the strongest open SSID not in the `tried` list (and not the
+// primary, which was already attempted). Returns "" if none found.
+String strongestOpenSsid(String* tried, int triedCount) {
+  int n = WiFi.scanNetworks();  // blocking ~2-3 s
+  if (n <= 0) {
+    LOG_WARN("WiFi: scan found no networks");
+    return "";
+  }
+  String best = "";
+  int32_t bestRssi = -1000;
+  for (int i = 0; i < n; i++) {
+    if (WiFi.encryptionType(i) != WIFI_AUTH_OPEN) continue;
+    String ssid = WiFi.SSID(i);
+    if (ssid.length() == 0 || ssid == WIFI_PRIMARY_SSID) continue;
+    bool seen = false;
+    for (int k = 0; k < triedCount; k++) {
+      if (tried[k] == ssid) { seen = true; break; }
+    }
+    if (seen) continue;
+    if (WiFi.RSSI(i) > bestRssi) {
+      bestRssi = WiFi.RSSI(i);
+      best = ssid;
+    }
+  }
+  if (best.length() > 0) {
+    LOG_INFO("WiFi: strongest open net \"%s\" RSSI %d", best.c_str(), (int)bestRssi);
+  } else {
+    LOG_WARN("WiFi: no open networks in range");
+  }
+  return best;
+}
+
+void connectWifi() {
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(true);
+  delay(200);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    // ── 1) Preferred open hotspot "hyperion" ──
+    LOG_INFO("WiFi: trying \"%s\" (open)...", WIFI_PRIMARY_SSID);
+    lcdPrintTwoLines("WiFi: hyperion", "Connecting...");
+    if (wifiJoin(WIFI_PRIMARY_SSID, NULL, WIFI_PRIMARY_TIMEOUT_MS)) break;
+    LOG_WARN("WiFi: \"%s\" failed", WIFI_PRIMARY_SSID);
+
+    // ── 2) Strongest free hotspot around (up to 3 candidates) ──
+    String tried[4];
+    int triedCount = 0;
+    for (int attempt = 0; attempt < 3; attempt++) {
+      lcdPrintTwoLines("WiFi: scanning", "Open networks..");
+      String ssid = strongestOpenSsid(tried, triedCount);
+      if (ssid.length() == 0) break;
+      tried[triedCount++] = ssid;
+      LOG_INFO("WiFi: trying open net \"%s\"...", ssid.c_str());
+      lcdPrintTwoLines("WiFi: " + ssid.substring(0, 10), "Open, joining..");
+      if (wifiJoin(ssid.c_str(), NULL, WIFI_OPEN_TIMEOUT_MS)) break;
+      LOG_WARN("WiFi: open net \"%s\" failed", ssid.c_str());
+    }
+    if (WiFi.status() == WL_CONNECTED) break;
+    WiFi.scanDelete();
+
+    // ── 3) Fallback to codiac ──
+    LOG_INFO("WiFi: trying fallback \"%s\"...", WIFI_FALLBACK_SSID);
+    lcdPrintTwoLines("WiFi: codiac", "Connecting...");
+    if (wifiJoin(WIFI_FALLBACK_SSID, WIFI_FALLBACK_PASS, WIFI_FALLBACK_TIMEOUT_MS)) break;
+    LOG_WARN("WiFi: all options failed, retrying chain...");
+  }
+
+  WiFi.scanDelete();
+  digitalWrite(LED_RED, LOW);
+  LOG_INFO("Wi-Fi Connected to \"%s\"! IP: %s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+}
+
+// ──────────────────────────────────────────────
 // Setup
 // ──────────────────────────────────────────────
 void setup() {
@@ -195,23 +298,8 @@ void setup() {
     delay(2000);
   }
 
-  // Connect to Wi-Fi
-  LOG_INFO("Connecting to Wi-Fi: %s", WIFI_SSID);
-  WiFi.setTxPower(WIFI_POWER_8_5dBm);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    attempts++;
-    digitalWrite(LED_RED, !digitalRead(LED_RED));
-    if (attempts % 20 == 0) {
-      LOG_WARN("Retrying Wi-Fi connection...");
-    }
-  }
-  digitalWrite(LED_RED, LOW);
-  LOG_INFO("Wi-Fi Connected! IP: %s", WiFi.localIP().toString().c_str());
+  // Connect to Wi-Fi (priority: hyperion open -> strongest open -> codiac)
+  connectWifi();
 
   // Startup tone indicator
   toneSuccess();
