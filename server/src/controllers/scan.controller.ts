@@ -68,17 +68,28 @@ export const getDriverFeed: RequestHandler = async (request, response, next) => 
     const rawLimit = Number(request.query.limit ?? 5);
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.trunc(rawLimit), 1), 20) : 5;
     const since = typeof request.query.since === "string" ? request.query.since.trim() : "";
+    const hasSince = since !== "" && /^[0-9a-fA-F]{24}$/.test(since);
 
-    const filter: Record<string, unknown> = { driverId: request.user!.id };
-    if (since && /^[0-9a-fA-F]{24}$/.test(since)) {
-      filter._id = { $gt: since };
+    // With `since`: everything newer than the cursor, oldest-first.
+    // Without `since` (first poll after boot): the LATEST trips, so the
+    // device can baseline its cursor without replaying entire history.
+    // (Sorting {_id: 1} with no cursor would return the OLDEST trips ever,
+    // making the reader beep through days of old QR failures.)
+    let trips;
+    if (hasSince) {
+      trips = await Trip.find({ driverId: request.user!.id, _id: { $gt: since } })
+        .sort({ _id: 1 })
+        .limit(limit)
+        .populate("studentId", "fullName")
+        .lean();
+    } else {
+      const latest = await Trip.find({ driverId: request.user!.id })
+        .sort({ _id: -1 })
+        .limit(limit)
+        .populate("studentId", "fullName")
+        .lean();
+      trips = latest.reverse();
     }
-
-    const trips = await Trip.find(filter)
-      .sort({ _id: 1 })
-      .limit(limit)
-      .populate("studentId", "fullName")
-      .lean();
 
     response.json({
       trips: trips.map((trip) => {

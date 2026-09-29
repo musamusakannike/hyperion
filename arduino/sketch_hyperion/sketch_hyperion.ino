@@ -381,9 +381,13 @@ void processScan(String cardUid) {
 void pollQrFeed() {
   if (WiFi.status() != WL_CONNECTED) return;
 
-  String url = String(FEED_URL) + "?limit=5";
+  String url = String(FEED_URL);
   if (lastSeenTripId.length() > 0) {
-    url += "&since=" + lastSeenTripId;
+    url += "?limit=5&since=" + lastSeenTripId;
+  } else {
+    // Baseline poll: limit=1 fetches only the single latest trip, so at
+    // most one in-flight payment is skipped and no history is replayed.
+    url += "?limit=1";
   }
 
   HTTPClient http;
