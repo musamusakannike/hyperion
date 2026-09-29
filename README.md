@@ -114,6 +114,7 @@ Without Paystack, use admin point adjustments.
 | GET | `/api/me/qr` | driver |
 | GET | `/api/me/trips` | student |
 | POST | `/api/scans` | student (QR) or driver/device (RFID) |
+| GET | `/api/scans/feed?since=&limit=` | driver/device (ESP32 QR poll) |
 | GET | `/api/scans/trips` | driver |
 | GET | `/api/admin/stats` | admin |
 | GET/PATCH | `/api/admin/users` | admin |

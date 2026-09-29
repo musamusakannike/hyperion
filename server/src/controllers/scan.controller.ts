@@ -51,3 +51,52 @@ export const listDriverTrips: RequestHandler = async (request, response, next) =
     next(error);
   }
 };
+
+/**
+ * Lightweight polling feed for headless bus readers (ESP32).
+ * The reader polls this with its X-Device-Key to announce QR boardings
+ * (which happen phone-to-server and otherwise bypass the reader hardware).
+ *
+ * GET /api/scans/feed?since=<tripId>&limit=5
+ * - `since`: only trips newer than this Trip _id are returned.
+ *   Omit on boot; the server returns the latest trip so the device can
+ *   baseline `lastSeenTripId` without replaying history.
+ * - Trips are returned oldest-first so the buzzer/LCD announce in order.
+ */
+export const getDriverFeed: RequestHandler = async (request, response, next) => {
+  try {
+    const rawLimit = Number(request.query.limit ?? 5);
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.trunc(rawLimit), 1), 20) : 5;
+    const since = typeof request.query.since === "string" ? request.query.since.trim() : "";
+
+    const filter: Record<string, unknown> = { driverId: request.user!.id };
+    if (since && /^[0-9a-fA-F]{24}$/.test(since)) {
+      filter._id = { $gt: since };
+    }
+
+    const trips = await Trip.find(filter)
+      .sort({ _id: 1 })
+      .limit(limit)
+      .populate("studentId", "fullName")
+      .lean();
+
+    response.json({
+      trips: trips.map((trip) => {
+        const student =
+          trip.studentId && typeof trip.studentId === "object" && "fullName" in trip.studentId
+            ? (trip.studentId as unknown as { fullName?: string })
+            : undefined;
+        return {
+          id: String(trip._id),
+          method: trip.method,
+          status: trip.status,
+          failReason: trip.failReason ?? undefined,
+          studentName: student?.fullName,
+          createdAt: (trip as { createdAt?: Date }).createdAt,
+        };
+      }),
+    });
+  } catch (error) {
+    next(error);
+  }
+};

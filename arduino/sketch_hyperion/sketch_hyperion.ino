@@ -31,7 +31,12 @@
 const char* WIFI_SSID     = "codiac";
 const char* WIFI_PASSWORD = "codiac01";
 const char* SERVER_URL    = "https://hyperion-4zp3.onrender.com/api/scans";
+const char* FEED_URL      = "https://hyperion-4zp3.onrender.com/api/scans/feed";
 const char* DEVICE_KEY    = "hypd_ff3c3fb6f97e40c1be09864865bc623e5009c172022ee982";
+
+// How often the reader polls for QR boardings that bypassed the RFID tap.
+// 3 s is a good demo balance: fast enough to feel live, slow enough for Render free tier.
+const unsigned long FEED_POLL_INTERVAL_MS = 3000;
 
 // 2. PIN DEFINITIONS (Matched to wiring diagram)
 #define SS_PIN      5    // RC522 SDA/SS
@@ -54,6 +59,13 @@ unsigned long lastHeartbeatMs = 0;
 const unsigned long HEARTBEAT_INTERVAL_MS = 10000;
 uint32_t loopCounter = 0;
 
+// ── QR feed polling state ─────────────────────────
+// lastSeenTripId is the cursor into GET /api/scans/feed.
+// Empty = not baselined yet; first successful poll only records the
+// newest trip id without beeping so reboot doesn't replay history.
+unsigned long lastFeedPollMs = 0;
+String lastSeenTripId = "";
+
 void lcdPrintTwoLines(const String& line1, const String& line2 = "") {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -73,16 +85,29 @@ void showReadyScreen() {
 // Active buzzer ignores frequency and just beeps for the duration;
 // passive buzzer plays distinct pitches. If your buzzer is active
 // and tone() sounds garbled, set BUZZER_PASSIVE to 0.
+//
+// LOUDNESS NOTE (software max):
+//  - tone() already drives the pin with a 50% duty square wave,
+//    which is the loudest a single 3.3V GPIO can do. There is no
+//    software "volume" beyond that — volume is set by frequency
+//    match to the piezo resonant peak (~1.5-3.5 kHz), duty, and
+//    duration. Low frequencies (300-600 Hz) are 10-20 dB quieter
+//    on a piezo, so the error tone MUST stay in the resonant band
+//    to be loud. For more SPL you need hardware: transistor/MOSFET
+//    driver, 5V supply, or resonant buzzer + enclosure hole.
 #define BUZZER_PASSIVE 1
 
 inline void buzz(int freq, int durationMs, int gapMs = 0) {
 #if BUZZER_PASSIVE
+  // Full-swing 50% duty square wave = maximum software volume.
   tone(BUZZER_PIN, freq, durationMs);
   delay(durationMs);
   noTone(BUZZER_PIN);
   digitalWrite(BUZZER_PIN, LOW); // ensure pin low after tone
 #else
-  // Active-buzzer fallback: frequency is ignored, only timing matters
+  // Active-buzzer fallback: frequency is ignored, only timing matters.
+  // Active buzzers are fixed-pitch and generally louder than a
+  // GPIO-driven piezo at off-resonant frequencies.
   (void)freq;
   digitalWrite(BUZZER_PIN, HIGH);
   delay(durationMs);
@@ -92,31 +117,45 @@ inline void buzz(int freq, int durationMs, int gapMs = 0) {
 }
 
 void toneDetect() {
-  // Card detected — single short chirp to acknowledge tap instantly
-  // Pattern: 2.7 kHz × 90 ms  (timing: 90 ms beep)
+  // Card detected — single short chirp to acknowledge tap instantly.
+  // Uses resonant peak (2.7 kHz) at max duty = loudest possible tick.
+  // Pattern: 2.7 kHz × 100 ms  (timing: 100 ms beep)
   LOG_DEBUG("Buzzer: DETECT chirp");
-  buzz(2700, 90);
+  buzz(2700, 100);
 }
 
 void toneSuccess() {
-  // Success — bright ascending double/triple beep (happy)
-  // Pattern: 2.0 kHz 120 ms → 80 ms gap → 2.6 kHz 120 ms → 80 ms gap → 3.2 kHz 180 ms
+  // Success — bright ascending double/triple beep (happy).
+  // All pitches sit in the piezo resonant band for max loudness.
+  // Pattern: 2.0 kHz 150 ms → 80 ms gap → 2.6 kHz 150 ms → 80 ms gap → 3.2 kHz 220 ms
+  // Total ≈ 600 ms.
   LOG_DEBUG("Buzzer: SUCCESS jingle");
-  buzz(2000, 120, 60);
-  buzz(2600, 120, 60);
-  buzz(3200, 180);
+  buzz(2000, 150, 80);
+  buzz(2600, 150, 80);
+  buzz(3200, 220);
 }
 
 void toneError() {
-  // Fail — low, sad buzz (distinct from success)
-  // Pattern: 600 Hz 250 ms → 80 ms gap → 400 Hz 250 ms → 80 ms gap → 300 Hz 500 ms
-  LOG_DEBUG("Buzzer: ERROR buzz");
-  buzz(600, 220, 80);
-  buzz(450, 220, 80);
-  buzz(300, 500);
+  // Fail — LOUD harsh spaced alarm, unmistakable vs success melody.
+  // Why loud: stays in piezo resonant band (1.4-1.6 kHz + 900 Hz tail)
+  // instead of 300-600 Hz (which piezos barely reproduce). 50% duty
+  // square wave = max software volume; length + silence gaps carry
+  // the "failure" meaning.
+  // Pattern (total ≈ 2.0 s, >= 1.5 s requirement):
+  //   1600 Hz × 280 ms, 200 ms silence,
+  //   1600 Hz × 280 ms, 200 ms silence,
+  //   1600 Hz × 280 ms, 200 ms silence,
+  //   900 Hz × 600 ms (long sad tail)
+  // Rhythm "BEEP ... BEEP ... BEEP ... BEEEEE" vs success "beep-beep-beee".
+  LOG_DEBUG("Buzzer: ERROR alarm (~2s)");
+  buzz(1600, 280, 200);
+  buzz(1600, 280, 200);
+  buzz(1600, 280, 200);
+  buzz(900, 600);
 }
 
 void processScan(String cardUid);
+void pollQrFeed();
 
 // ──────────────────────────────────────────────
 // Setup
@@ -196,9 +235,7 @@ void loop() {
   if (digitalRead(BUTTON_PIN) == HIGH) {
     LOG_INFO("Push Button Pressed!");
     lcdPrintTwoLines("Manual Override", "Status Check");
-    digitalWrite(BUZZER_PIN, HIGH);
-    delay(100);
-    digitalWrite(BUZZER_PIN, LOW);
+    buzz(2700, 100);
     
     // Wait for button release
     while (digitalRead(BUTTON_PIN) == HIGH) {
@@ -218,6 +255,16 @@ void loop() {
       showReadyScreen();
     }
     return;
+  }
+
+  // Poll for QR boardings (student phone -> server) that never touched
+  // the RFID reader. Announces each new QR trip on LCD/buzzer/LED.
+  // Runs even when no card is present; skipped while a card is being handled below.
+  if (now - lastFeedPollMs >= FEED_POLL_INTERVAL_MS) {
+    lastFeedPollMs = now;
+    pollQrFeed();
+    // pollQrFeed restores the ready screen after announcing, so RFID
+    // handling below starts from a clean state.
   }
 
   // Look for cards
@@ -282,7 +329,10 @@ void processScan(String cardUid) {
     } else {
       bool ok = doc["ok"] | false;
       const char* msg = doc["message"] | "";
-      const char* student = doc["student"] | doc["name"] | "";
+      // Server sends `studentName`; keep legacy keys as fallback.
+      const char* student = doc["studentName"] | "";
+      if (!student[0]) student = doc["student"] | "";
+      if (!student[0]) student = doc["name"] | "";
 
       if (ok) {
         LOG_INFO("Approved: %s", student[0] ? student : msg);
@@ -312,4 +362,99 @@ void processScan(String cardUid) {
   }
 
   http.end();
+}
+
+// ──────────────────────────────────────────────
+// QR Feed Polling: LCD + buzzer + LED feedback for phone QR payments
+// ──────────────────────────────────────────────
+// Student QR payments go phone -> server and never touch the RFID reader,
+// so without this the bus box stays silent. Polling GET /api/scans/feed
+// lets the reader announce them a few seconds later with the same
+// LCD/buzzer/LED language as an RFID tap.
+//
+// Rules:
+//  - Only `method == "qr"` trips are announced (RFID trips were already
+//    announced instantly by processScan(); re-announcing would double-beep).
+//  - Cursor `lastSeenTripId` advances past EVERY trip (qr + rfid) so the
+//    feed never replays; only qr trips produce hardware output.
+//  - First poll after boot only baselines the cursor, no beep.
+void pollQrFeed() {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  String url = String(FEED_URL) + "?limit=5";
+  if (lastSeenTripId.length() > 0) {
+    url += "&since=" + lastSeenTripId;
+  }
+
+  HTTPClient http;
+  if (!http.begin(url)) {
+    LOG_WARN("Feed: HTTP begin failed");
+    return;
+  }
+  http.setTimeout(5000);
+  http.setReuse(false);
+  http.addHeader("X-Device-Key", DEVICE_KEY);
+
+  int httpCode = http.GET();
+  if (httpCode != 200) {
+    // Quiet failure: keep the ready screen, try again next interval.
+    // (Render free tier cold starts can take > poll interval.)
+    LOG_DEBUG("Feed: HTTP %d", httpCode);
+    http.end();
+    return;
+  }
+
+  String response = http.getString();
+  http.end();
+
+  DynamicJsonDocument doc(2048);
+  DeserializationError jErr = deserializeJson(doc, response);
+  if (jErr) {
+    LOG_WARN("Feed: JSON error %s", jErr.c_str());
+    return;
+  }
+
+  JsonArray trips = doc["trips"].as<JsonArray>();
+  if (trips.size() == 0) return;
+
+  // Baseline on first poll: record newest id, announce nothing.
+  if (lastSeenTripId.length() == 0) {
+    const char* newest = trips[trips.size() - 1]["id"] | "";
+    if (newest[0]) lastSeenTripId = String(newest);
+    LOG_DEBUG("Feed: baselined at %s (%u trips skipped)", lastSeenTripId.c_str(), trips.size());
+    return;
+  }
+
+  for (JsonObject trip : trips) {
+    const char* id = trip["id"] | "";
+    if (!id[0]) continue;
+    // Advance cursor even for rfid trips so we never revisit them.
+    lastSeenTripId = String(id);
+
+    const char* method = trip["method"] | "";
+    if (String(method) != "qr") continue;  // already beeped locally via processScan()
+
+    const char* status = trip["status"] | "";
+    const char* studentName = trip["studentName"] | "";
+    const char* failReason = trip["failReason"] | "";
+    bool ok = (String(status) == "success");
+
+    if (ok) {
+      LOG_INFO("Feed QR approved: %s (%s)", studentName[0] ? studentName : "student", id);
+      lcdPrintTwoLines(studentName[0] ? String(studentName) : "QR Paid!", "Welcome Aboard");
+      digitalWrite(LED_GREEN, HIGH);
+      toneSuccess();
+      delay(1500);
+      digitalWrite(LED_GREEN, LOW);
+    } else {
+      LOG_WARN("Feed QR failed: %s (%s)", failReason[0] ? failReason : status, id);
+      lcdPrintTwoLines("QR Denied", failReason[0] ? String(failReason) : "See Driver");
+      digitalWrite(LED_RED, HIGH);
+      toneError();
+      delay(1500);
+      digitalWrite(LED_RED, LOW);
+    }
+  }
+
+  showReadyScreen();
 }
