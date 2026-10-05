@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Guard } from "@/components/guard";
 import { AppShell, studentTabs } from "@/components/shell";
 import { Card, ErrorText, Field, PageIntro, PrimaryButton } from "@/components/ui";
@@ -14,7 +14,6 @@ function QrInner() {
   const [busy, setBusy] = useState(false);
   const [camOn, setCamOn] = useState(false);
   const regionId = "hyperion-student-qr-reader";
-  const scannerRef = useRef<{ stop: () => Promise<void> } | null>(null);
 
   const submit = async (scanToken: string) => {
     if (!scanToken) {
@@ -43,34 +42,82 @@ function QrInner() {
 
   useEffect(() => {
     if (!camOn) return;
-    let cancelled = false;
-    (async () => {
-      const { Html5Qrcode } = await import("html5-qrcode");
-      const scanner = new Html5Qrcode(regionId);
-      scannerRef.current = scanner;
+
+    let isDestroyed = false;
+    let isStarting = false;
+    let scannerInstance: import("html5-qrcode").Html5Qrcode | null = null;
+    let stopPromise: Promise<void> | null = null;
+
+    const stopScanner = async () => {
+      if (stopPromise) return stopPromise;
+      if (!scannerInstance) return;
+
+      const scanner = scannerInstance;
+      stopPromise = (async () => {
+        try {
+          if (scanner.isScanning) {
+            await scanner.stop();
+          }
+        } catch {
+          // Scanner already stopped or transitioning; safe to ignore
+        }
+        try {
+          scanner.clear();
+        } catch {
+          // Clear errors are non-critical
+        }
+      })();
+      return stopPromise;
+    };
+
+    const startScanner = async () => {
+      isStarting = true;
       try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        if (isDestroyed) {
+          isStarting = false;
+          return;
+        }
+
+        const scanner = new Html5Qrcode(regionId);
+        scannerInstance = scanner;
+
         await scanner.start(
           { facingMode: "environment" },
           { fps: 8, qrbox: { width: 240, height: 240 } },
           (decoded) => {
-            if (cancelled) return;
+            if (isDestroyed) return;
+            // Mark destroyed immediately to discard subsequent frame detections
+            isDestroyed = true;
             setToken(decoded);
-            void scanner.stop();
             setCamOn(false);
+            void stopScanner();
             void submit(decoded);
           },
           () => undefined,
         );
+
+        isStarting = false;
+        if (isDestroyed) {
+          await stopScanner();
+        }
       } catch (err) {
-        setError(apiError(err, "Camera could not start"));
-        setCamOn(false);
+        isStarting = false;
+        if (!isDestroyed) {
+          setError(apiError(err, "Camera could not start"));
+          setCamOn(false);
+        }
       }
-    })();
-    return () => {
-      cancelled = true;
-      scannerRef.current?.stop().catch(() => undefined);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    void startScanner();
+
+    return () => {
+      isDestroyed = true;
+      if (!isStarting) {
+        void stopScanner();
+      }
+    };
   }, [camOn]);
 
   return (
@@ -90,10 +137,20 @@ function QrInner() {
             <PrimaryButton type="button" disabled={busy || !token} onClick={() => submit(token)}>
               {busy ? "Checking…" : "Board (1 ride)"}
             </PrimaryButton>
-            <PrimaryButton type="button" variant="secondary" onClick={() => setCamOn((v) => !v)}>
+            <PrimaryButton
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setError("");
+                setCamOn((v) => !v);
+              }}
+            >
               {camOn ? "Stop camera" : "Open camera"}
             </PrimaryButton>
-            {camOn ? <div id={regionId} className="overflow-hidden rounded-3xl" /> : null}
+            <div
+              id={regionId}
+              className={`overflow-hidden rounded-3xl ${camOn ? "block" : "hidden"}`}
+            />
           </div>
         </Card>
         {result ? (
