@@ -406,6 +406,152 @@
       letter-spacing: 0.02em;
     }
 
+    /* Multi-Role 3-Dashboard Triad Row */
+    .dashboard-triad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      width: 100%;
+      height: 100%;
+      align-items: stretch;
+    }
+
+    .dashboard-col {
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px 18px 18px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-col:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .dashboard-col.student-theme {
+      border-top: 4px solid var(--primary);
+    }
+
+    .dashboard-col.driver-theme {
+      border-top: 4px solid #0284c7;
+    }
+
+    .dashboard-col.admin-theme {
+      border-top: 4px solid #7c3aed;
+    }
+
+    .dashboard-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .dashboard-col-title {
+      font-family: var(--font-heading);
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboard-col-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .student-theme .dashboard-col-badge {
+      background: var(--primary-bg);
+      color: var(--primary);
+    }
+
+    .driver-theme .dashboard-col-badge {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .admin-theme .dashboard-col-badge {
+      background: #f3e8ff;
+      color: #7c3aed;
+    }
+
+    .dashboard-thumb-frame {
+      width: 100%;
+      height: 205px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .dashboard-thumb-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+      transition: transform 0.3s ease;
+    }
+
+    .dashboard-col:hover .dashboard-thumb-frame img {
+      transform: scale(1.02);
+    }
+
+    .dashboard-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      justify-content: space-evenly;
+    }
+
+    .dashboard-feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      line-height: 1.38;
+      color: #334155;
+    }
+
+    .dashboard-feature-list li strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .dash-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .student-theme .dash-dot { background: var(--primary); }
+    .driver-theme .dash-dot { background: #0284c7; }
+    .admin-theme .dash-dot { background: #7c3aed; }
+
     /* Minimal Bullet List */
     .feature-list {
       list-style: none;
@@ -1300,7 +1446,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 8: Software Platform (Student Dashboard) -->
+    <!-- SLIDE 8: Software Platform (Multi-Role Dashboards) -->
     <section class="slide" id="slide-8">
       <div class="corner-decor">
         <div class="corner-glow"></div>
@@ -1313,32 +1459,100 @@
 
       <div class="slide-header">
         <div class="slide-category">Software Experience</div>
-        <h2 class="slide-title">Student Digital Portal</h2>
-        <p class="slide-subtitle">Intuitive web interface designed for fast access on any phone, tablet, or laptop.</p>
+        <h2 class="slide-title">Unified Software Ecosystem</h2>
+        <p class="slide-subtitle">Dedicated operational interfaces built for students, bus drivers, and campus transit administrators.</p>
       </div>
 
       <div class="slide-body">
-        <div class="grid-2">
-          <div class="media-card">
-            <img src="./student-dashboard.png" alt="Hyperion Student Dashboard Interface" />
-            <div class="media-tag">Live Student Web Application</div>
+        <div class="dashboard-triad-grid">
+          <!-- Column 1: Student Dashboard -->
+          <div class="dashboard-col student-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Student Portal</span>
+              </div>
+              <span class="dashboard-col-badge">Mobile / Web</span>
+            </div>
+            
+            <div class="dashboard-thumb-frame">
+              <img src="./student-dashboard.png" alt="Hyperion Student Dashboard Interface" />
+            </div>
+
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Point Balance:</strong> Instant display of remaining ride passes without cash calculations.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Quick Actions:</strong> One-tap QR scanning for rapid bus boarding & instant online top-up.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Trip Log:</strong> Real-time transparent history of ride timestamps and points deducted.</span>
+              </li>
+            </ul>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 18px;">
-            <div class="card primary-card">
-              <h3 class="card-title">Clear Point Balance</h3>
-              <p class="card-desc">Shows current rides remaining at a glance with no complicated financial math.</p>
+          <!-- Column 2: Driver Dashboard -->
+          <div class="dashboard-col driver-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.93" y1="19.07" x2="9.87" y2="14.13"/><line x1="19.07" y1="19.07" x2="14.13" y2="14.13"/></svg>
+                <span>Driver Terminal</span>
+              </div>
+              <span class="dashboard-col-badge">In-Vehicle Hub</span>
             </div>
 
-            <div class="card primary-card">
-              <h3 class="card-title">Quick Actions</h3>
-              <p class="card-desc">One tap to scan QR code, top up points online, or view security PIN.</p>
+            <div class="dashboard-thumb-frame">
+              <img src="./driver-dashboard.png" alt="Hyperion Driver Terminal Interface" />
             </div>
 
-            <div class="card primary-card">
-              <h3 class="card-title">Complete Trip Log</h3>
-              <p class="card-desc">Real-time record showing ride time, bus route, and points deducted.</p>
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Tap Validation:</strong> Instant green/red visual response for card taps and QR boarding.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Capacity Monitor:</strong> Live onboard headcount counter to prevent bus overloading.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Shift Ledger:</strong> Live tracking of completed routes, passenger counts, and shift fare stats.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Admin Dashboard -->
+          <div class="dashboard-col admin-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Admin Hub</span>
+              </div>
+              <span class="dashboard-col-badge">Central Control</span>
             </div>
+
+            <div class="dashboard-thumb-frame">
+              <img src="./admin-dashboard.png" alt="Hyperion Central Admin Dashboard" />
+            </div>
+
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Fleet Telemetry:</strong> Live campus map tracking active buses, queues, and route velocity.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Financial Audit:</strong> Automated revenue reporting, top-up logs, and driver payout reconciliation.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Card Management:</strong> Instant NFC card issuance, blocking lost cards, and user role access.</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
