@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperion — Smart Cashless Campus Transit System | SWEP 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-dark: #1e40af;
+      --primary-light: #dbeafe;
+      --primary-bg: #eff6ff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --bg: #ffffff;
+      --bg-soft: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-focus: #3b82f6;
+      --success: #16a34a;
+      --success-light: #dcfce7;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --radius-lg: 28px;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-heading: 'Space Grotesk', var(--font-body);
+      --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 12px 32px -6px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.8);
+      --shadow-lg: 0 24px 50px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* Top Bar */
+    .deck-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-unilorin {
+      width: 32px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .swep-tag {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 3px var(--success-light);
+    }
+
+    /* Deck Layout */
+    .deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: 76px 72px 84px 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.985) translateX(24px);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateX(0);
+      z-index: 10;
+    }
+
+    /* ─── SIGNATURE BOTTOM-RIGHT CORNER STYLE ─── */
+    .corner-decor {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 58vw;
+      height: 62vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* Atmospheric Cyan/Blue Glow on the diagonal seam */
+    .corner-glow {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 100%, 100% 28%, 100% 100%);
+      background: radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.55), rgba(37, 99, 235, 0.2) 70%, transparent 100%);
+      filter: blur(28px);
+      transform: translate(-12px, -12px);
+    }
+
+    /* Dynamic Deep Blue Diagonal Geometry */
+    .corner-polygon {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 100%, 100% 32%, 100% 100%);
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%);
+      box-shadow: -20px -20px 50px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Unilorin Crest Watermark inside the blue corner */
+    .corner-watermark {
+      position: absolute;
+      bottom: -15px;
+      right: 25px;
+      width: 380px;
+      max-width: 44vw;
+      height: auto;
+      opacity: 0.17;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    /* Top-Right Secondary Curved Accent */
+    .corner-top-accent {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 26vw;
+      height: 24vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .corner-top-polygon {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(100% 0, 48% 0, 100% 88%);
+      background: linear-gradient(225deg, #1d4ed8 0%, #2563eb 65%, #3b82f6 100%);
+      opacity: 0.88;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      position: relative;
+      z-index: 5;
+      max-width: 960px;
+    }
+
+    .slide-category {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-category::before {
+      content: "";
+      width: 14px;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .slide-title {
+      font-family: var(--font-heading);
+      font-size: 2.3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--text);
+    }
+
+    .slide-subtitle {
+      margin-top: 6px;
+      font-size: 1.02rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Slide Body */
+    .slide-body {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      margin: 16px 0 10px 0;
+      width: 100%;
+      min-height: 0;
+    }
+
+    /* Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 36px;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    .grid-2-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .card.primary-card {
+      background: #ffffff;
+      border-left: 5px solid var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      font-weight: 700;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+    }
+
+    .card-badge svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
+    }
+
+    .card-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Media Frames */
+    .media-card {
+      width: 100%;
+      height: 100%;
+      max-height: 440px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+    }
+
+    .media-card.cover img {
+      object-fit: cover;
+    }
+
+    .media-tag {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Multi-Role 3-Dashboard Triad Row */
+    .dashboard-triad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      width: 100%;
+      height: 100%;
+      align-items: stretch;
+    }
+
+    .dashboard-col {
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px 18px 18px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-col:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .dashboard-col.student-theme {
+      border-top: 4px solid var(--primary);
+    }
+
+    .dashboard-col.driver-theme {
+      border-top: 4px solid #0284c7;
+    }
+
+    .dashboard-col.admin-theme {
+      border-top: 4px solid #7c3aed;
+    }
+
+    .dashboard-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .dashboard-col-title {
+      font-family: var(--font-heading);
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboard-col-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .student-theme .dashboard-col-badge {
+      background: var(--primary-bg);
+      color: var(--primary);
+    }
+
+    .driver-theme .dashboard-col-badge {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .admin-theme .dashboard-col-badge {
+      background: #f3e8ff;
+      color: #7c3aed;
+    }
+
+    .dashboard-thumb-frame {
+      width: 100%;
+      height: 205px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .dashboard-thumb-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+      transition: transform 0.3s ease;
+    }
+
+    .dashboard-col:hover .dashboard-thumb-frame img {
+      transform: scale(1.02);
+    }
+
+    .dashboard-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      justify-content: space-evenly;
+    }
+
+    .dashboard-feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      line-height: 1.38;
+      color: #334155;
+    }
+
+    .dashboard-feature-list li strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .dash-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .student-theme .dash-dot { background: var(--primary); }
+    .driver-theme .dash-dot { background: #0284c7; }
+    .admin-theme .dash-dot { background: #7c3aed; }
+
+    /* Minimal Bullet List */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 1rem;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .icon-marker {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .icon-marker svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+    }
+
+    .feature-list strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Metric / Stat Boxes */
+    .metric-value {
+      font-family: var(--font-heading);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .metric-label {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Title Slide Specifics */
+    .hero-layout {
+      position: relative;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      border: 1px solid var(--primary-light);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: 3.6rem;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-title span {
+      color: var(--primary);
+    }
+
+    .hero-subtitle {
+      font-size: 1.22rem;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 540px;
+    }
+
+    .hero-meta-box {
+      margin-top: 12px;
+      padding: 18px 22px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .meta-divider {
+      width: 1px;
+      height: 36px;
+      background: var(--border);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--subtle);
+      font-weight: 700;
+    }
+
+    .meta-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .hero-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Floating Card matching user's reference image */
+    .crest-card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      gap: 18px;
+      position: relative;
+      z-index: 6;
+    }
+
+    .crest-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      padding: 6px;
+    }
+
+    .crest-img {
+      width: 70px;
+      height: 78px;
+      object-fit: contain;
+    }
+
+    .crest-text-main {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .crest-text-sub {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Pill badge matching user screenshot */
+    .pill-swep {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      border-radius: 9999px;
+      padding: 7px 18px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+    }
+
+    .cap-icon {
+      width: 18px;
+      height: 18px;
+      fill: #2563eb;
+      flex-shrink: 0;
+    }
+
+    /* Comparison / Steps */
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+      position: relative;
+    }
+
+    .step-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hardware Highlight Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .spec-item {
+      padding: 16px 18px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spec-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .spec-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .spec-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .spec-desc {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    /* Team Showcase */
+    .team-showcase {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 36px;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    /* Deck Footer */
+    .deck-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      z-index: 100;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-bar-wrap {
+      flex: 1;
+      max-width: 340px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0 20px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 10%;
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .slide-counter {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      font-family: var(--font-heading);
+      min-width: 64px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .btn-nav:hover {
+      background: var(--bg-soft);
+      border-color: #cbd5e1;
+    }
+
+    .btn-nav.primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-nav.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-nav svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+    }
+
+    .btn-icon-only {
+      padding: 8px;
+      width: 36px;
+      height: 36px;
+      justify-content: center;
+    }
+
+    .keyboard-hint {
+      font-size: 0.78rem;
+      color: var(--subtle);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-family: monospace;
+      color: var(--muted);
+    }
+
+    /* Responsive scaling */
+    @media (max-width: 1024px) {
+      .slide {
+        padding: 68px 40px 72px 40px;
+      }
+      .slide-title {
+        font-size: 1.85rem;
+      }
+      .hero-title {
+        font-size: 2.6rem;
+      }
+      .grid-2, .hero-layout, .team-showcase {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .media-card {
+        max-height: 280px;
+      }
+      .corner-decor {
+        width: 75vw;
+        height: 50vh;
+      }
+      .corner-watermark {
+        width: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="deck-topbar">
+    <div class="brand-group">
+      <img src="./unilorin-badge.jpeg" alt="University of Ilorin" class="badge-unilorin" />
+      <div class="brand-mark">
+        <span>HYPERION</span>
+        <span class="brand-badge">GROUP H</span>
+      </div>
+    </div>
+    <div class="swep-tag">
+      <span class="pill-live"></span>
+      <span>SWEP 2026 Exhibition &bull; University of Ilorin</span>
+    </div>
+  </header>
+
+  <!-- Presentation Deck Container -->
+  <main class="deck-container">
+
+    <!-- SLIDE 1: Title & Group Introduction -->
+    <section class="slide active" id="slide-1">
+      <!-- Background Corner Signature Style -->
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="hero-layout">
+        <div class="hero-content">
+          <div class="hero-pill">University of Ilorin &bull; SWEP 2026</div>
+          <h1 class="hero-title">Hyperion: <span>Smart Campus Transit</span></h1>
+          <p class="hero-subtitle">
+            An automated cashless bus boarding and digital ride management system designed for University of Ilorin students.
+          </p>
+
+          <div class="hero-meta-box">
+            <div class="meta-item">
+              <span class="meta-title">Project Team</span>
+              <span class="meta-val">Group H Students</span>
+            </div>
+            <div class="meta-divider"></div>
+            <div class="meta-item">
+              <span class="meta-title">Faculty</span>
+              <span class="meta-val">Engineering & Technology</span>
+            </div>
+            <div class="meta-divider"></div>
+            <div class="meta-item">
+              <span class="meta-title">Target Fare</span>
+              <span class="meta-val">₦250 / Point</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="crest-card">
+            <div class="crest-circle">
+              <img src="./unilorin-badge.jpeg" alt="University of Ilorin Crest" class="crest-img" />
+            </div>
+            <div>
+              <div class="crest-text-main">Students Work Experience Program</div>
+              <div class="crest-text-sub">SWEP 2026 Project Presentation</div>
+            </div>
+            <div class="pill-swep">
+              <svg class="cap-icon" viewBox="0 0 24 24">
+                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+              </svg>
+              <span>Group H &bull; Hardware &amp; Software Integration</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: The Campus Problem -->
+    <section class="slide" id="slide-2">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">The Problem</div>
+        <h2 class="slide-title">Daily Campus Transportation Challenges</h2>
+        <p class="slide-subtitle">Thousands of students board campus shuttle buses daily, facing repetitive payment bottlenecks.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card primary-card">
+            <div class="card-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3 class="card-title">Cash & Change Scarcity</h3>
+            <p class="card-desc">
+              Looking for exact ₦250 cash or bus change creates long delays, disputes, and boarding friction every morning.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="card-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3 class="card-title">Slow Boarding Queues</h3>
+            <p class="card-desc">
+              Manual cash collection by drivers or conductors slows passenger flow, leading to congestion at the campus bus parks.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="card-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3 class="card-title">Zero Trip Transparency</h3>
+            <p class="card-desc">
+              Neither students nor transit administrators have an easy way to verify transactions, monitor rides, or track spending.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: The Hyperion Solution -->
+    <section class="slide" id="slide-3">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">The Solution</div>
+        <h2 class="slide-title">Hyperion: Integrated Cashless Ecosystem</h2>
+        <p class="slide-subtitle">A synchronized system connecting physical bus terminals, mobile students, and cloud records.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="flow-steps">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3 class="card-title">Smart Ride Points</h3>
+            <p class="card-desc">
+              Students purchase ride points (1 Point = ₦250 ride). The wallet stays safely linked to their student profile.
+            </p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3 class="card-title">Instant Tap or Scan</h3>
+            <p class="card-desc">
+              Board the bus in under a second using an RFID student card or by scanning the bus QR code with a smartphone.
+            </p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3 class="card-title">Automated Verification</h3>
+            <p class="card-desc">
+              The on-board validator verifies the fare, beeps green, shows balance on the LCD screen, and logs the trip immediately.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Hardware Showcase (The Validator Pod) -->
+    <section class="slide" id="slide-4">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Hardware Implementation</div>
+        <h2 class="slide-title">The Hyperion Bus Validator Pod</h2>
+        <p class="slide-subtitle">Physical terminal mounted at the campus bus entrance for hands-free driver operations.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="media-card">
+            <img src="./finished-product-hardware.png" alt="Hyperion Bus Validator Pod" />
+            <div class="media-tag">Finished Physical Hardware Unit</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <ul class="feature-list">
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                  <strong>Contactless RFID Card Zone:</strong>
+                  Students tap their ID card or fob for instant payment without opening a phone.
+                </div>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                  <strong>16&times;2 Backlit LCD Screen:</strong>
+                  Displays live passenger feedback: ride deduction and remaining points.
+                </div>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                  <strong>Dual LED &amp; Buzzer Audio Feedback:</strong>
+                  Green double-beep for approved boarding; red alert for low balance.
+                </div>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div>
+                  <strong>Permanent Boarding QR Code:</strong>
+                  Alternative digital boarding option for students using the mobile web app.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Hardware Schematic & Components -->
+    <section class="slide" id="slide-5">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Circuit Architecture</div>
+        <h2 class="slide-title">Circuit Diagram &amp; Component Integration</h2>
+        <p class="slide-subtitle">Interfacing low-power microcontrollers with wireless communication and I/O peripherals.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="media-card">
+            <img src="./hardware-connection-diagram.JPG" alt="Hardware Circuit Connection Diagram" />
+            <div class="media-tag">Wiring Schematic &amp; Pin Configuration</div>
+          </div>
+
+          <div class="specs-grid">
+            <div class="spec-item">
+              <div class="spec-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+              </div>
+              <div class="spec-info">
+                <span class="spec-name">ESP32 DevKit V1</span>
+                <span class="spec-desc">Microcontroller brain with Wi-Fi connectivity</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <div class="spec-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </div>
+              <div class="spec-info">
+                <span class="spec-name">RC522 RFID Module</span>
+                <span class="spec-desc">High-speed SPI 13.56 MHz contactless reader</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <div class="spec-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="spec-info">
+                <span class="spec-name">16&times;2 I2C LCD</span>
+                <span class="spec-desc">Two-wire serial bus display with PCF8574</span>
+              </div>
+            </div>
+
+            <div class="spec-item">
+              <div class="spec-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              </div>
+              <div class="spec-info">
+                <span class="spec-name">Indicators &amp; Audio</span>
+                <span class="spec-desc">Green/Red LEDs and Piezo tone buzzer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Practical Fabrication & Workshop Progress -->
+    <section class="slide" id="slide-6">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Engineering Practice</div>
+        <h2 class="slide-title">Workshop Fabrication &amp; Assembly</h2>
+        <p class="slide-subtitle">Hands-on student engineering during the Students Work Experience Program.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2-equal">
+          <div class="media-card cover">
+            <img src="./IMG-20260923-WA0364.jpg" alt="Students soldering circuit components" />
+            <div class="media-tag">Soldering &amp; Hardware Circuit Testing</div>
+          </div>
+
+          <div class="media-card cover">
+            <img src="./students-working-on-the-project.jpg" alt="Group H students at the electronics workbench" />
+            <div class="media-tag">Firmware Debugging &amp; Systems Integration</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: How It Works: Two Payment Channels -->
+    <section class="slide" id="slide-7">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">System Operation</div>
+        <h2 class="slide-title">Seamless Tap or Scan Boarding</h2>
+        <p class="slide-subtitle">Designed for high reliability whether a student has a smartphone or not.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-2-equal">
+          <div class="card primary-card">
+            <div class="card-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <h3 class="card-title">Method 1: Tap RFID Card</h3>
+            <ul class="feature-list" style="margin-top: 8px;">
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>Student touches card on the validator pod.</span>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>Validator reads card UID and checks cloud balance.</span>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>Green light flashes, buzzer sounds, screen confirms.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card primary-card">
+            <div class="card-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <h3 class="card-title">Method 2: Scan Bus QR</h3>
+            <ul class="feature-list" style="margin-top: 8px;">
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>Student opens Hyperion app on their smartphone.</span>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>Points phone camera at the bus boarding QR code.</span>
+              </li>
+              <li>
+                <div class="icon-marker">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span>1 Point deducted; trip appears instantly in history.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Software Platform (Multi-Role Dashboards) -->
+    <section class="slide" id="slide-8">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Software Experience</div>
+        <h2 class="slide-title">Unified Software Ecosystem</h2>
+        <p class="slide-subtitle">Dedicated operational interfaces built for students, bus drivers, and campus transit administrators.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="dashboard-triad-grid">
+          <!-- Column 1: Student Dashboard -->
+          <div class="dashboard-col student-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Student Portal</span>
+              </div>
+              <span class="dashboard-col-badge">Mobile / Web</span>
+            </div>
+            
+            <div class="dashboard-thumb-frame">
+              <img src="./student-dashboard.png" alt="Hyperion Student Dashboard Interface" />
+            </div>
+
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Point Balance:</strong> Instant display of remaining ride passes without cash calculations.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Quick Actions:</strong> One-tap QR scanning for rapid bus boarding & instant online top-up.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Trip Log:</strong> Real-time transparent history of ride timestamps and points deducted.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 2: Driver Dashboard -->
+          <div class="dashboard-col driver-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.93" y1="19.07" x2="9.87" y2="14.13"/><line x1="19.07" y1="19.07" x2="14.13" y2="14.13"/></svg>
+                <span>Driver Terminal</span>
+              </div>
+              <span class="dashboard-col-badge">In-Vehicle Hub</span>
+            </div>
+
+            <div class="dashboard-thumb-frame">
+              <img src="./driver-dashboard.png" alt="Hyperion Driver Terminal Interface" />
+            </div>
+
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Tap Validation:</strong> Instant green/red visual response for card taps and QR boarding.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Capacity Monitor:</strong> Live onboard headcount counter to prevent bus overloading.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Shift Ledger:</strong> Live tracking of completed routes, passenger counts, and shift fare stats.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Admin Dashboard -->
+          <div class="dashboard-col admin-theme">
+            <div class="dashboard-col-header">
+              <div class="dashboard-col-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Admin Hub</span>
+              </div>
+              <span class="dashboard-col-badge">Central Control</span>
+            </div>
+
+            <div class="dashboard-thumb-frame">
+              <img src="./admin-dashboard.png" alt="Hyperion Central Admin Dashboard" />
+            </div>
+
+            <ul class="dashboard-feature-list">
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Fleet Telemetry:</strong> Live campus map tracking active buses, queues, and route velocity.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Financial Audit:</strong> Automated revenue reporting, top-up logs, and driver payout reconciliation.</span>
+              </li>
+              <li>
+                <span class="dash-dot"></span>
+                <span><strong>Card Management:</strong> Instant NFC card issuance, blocking lost cards, and user role access.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Project Impact & Benefits -->
+    <section class="slide" id="slide-9">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Campus Value</div>
+        <h2 class="slide-title">Key Benefits for the University</h2>
+        <p class="slide-subtitle">Delivering measurable improvements to students, drivers, and transport officials.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-4">
+          <div class="card primary-card">
+            <div class="metric-value">&lt;1s</div>
+            <div class="metric-label">Boarding Speed</div>
+            <p class="card-desc" style="font-size: 0.88rem; margin-top: 8px;">
+              Fast contactless card taps keep queues moving quickly during peak lecture hours.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="metric-value">0%</div>
+            <div class="metric-label">Cash Friction</div>
+            <p class="card-desc" style="font-size: 0.88rem; margin-top: 8px;">
+              No more searching for change or argument over ₦250 bus fares.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="metric-value">100%</div>
+            <div class="metric-label">Audit Accuracy</div>
+            <p class="card-desc" style="font-size: 0.88rem; margin-top: 8px;">
+              Every ride is logged automatically in the database for total accountability.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="metric-value">2-in-1</div>
+            <div class="metric-label">Dual Channel</div>
+            <p class="card-desc" style="font-size: 0.88rem; margin-top: 8px;">
+              Works seamlessly with student ID cards or smartphones.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: The Team (Group H) -->
+    <section class="slide" id="slide-10">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Project Contributors</div>
+        <h2 class="slide-title">Group H Engineering Students</h2>
+        <p class="slide-subtitle">Students Work Experience Program (SWEP 2026), University of Ilorin.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="team-showcase">
+          <div class="media-card cover">
+            <img src="./IMG-20260923-WA0366.jpg" alt="Group H engineering students in hard hats" />
+            <div class="media-tag">Group H Engineers &bull; SWEP 2026</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="card primary-card">
+              <h3 class="card-title">Interdisciplinary Collaboration</h3>
+              <p class="card-desc">
+                Combined efforts across circuit design, embedded C++ coding, enclosure fabrication, and software design.
+              </p>
+            </div>
+
+            <div class="card primary-card">
+              <h3 class="card-title">Real-World Problem Solving</h3>
+              <p class="card-desc">
+                Addressing an everyday challenge experienced by thousands of Unilorin students on the campus transit line.
+              </p>
+            </div>
+
+            <div class="card primary-card">
+              <h3 class="card-title">Faculty Supervision</h3>
+              <p class="card-desc">
+                Faculty of Engineering and Technology, University of Ilorin, Ilorin, Nigeria.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: Live Demonstration & Conclusion -->
+    <section class="slide" id="slide-11">
+      <div class="corner-decor">
+        <div class="corner-glow"></div>
+        <div class="corner-polygon"></div>
+        <img src="./unilorin-crest-watermark.png" alt="" class="corner-watermark" />
+      </div>
+      <div class="corner-top-accent">
+        <div class="corner-top-polygon"></div>
+      </div>
+
+      <div class="slide-header">
+        <div class="slide-category">Live Presentation</div>
+        <h2 class="slide-title">Ready for Live Demonstration</h2>
+        <p class="slide-subtitle">We invite the judges to test the prototype live on the demonstration table.</p>
+      </div>
+
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card primary-card">
+            <div class="card-badge">1</div>
+            <h3 class="card-title">Tap Student Card</h3>
+            <p class="card-desc">
+              Tap the test RFID card on the Hyperion bus validator pod. Observe the green LED and buzzer tone.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="card-badge">2</div>
+            <h3 class="card-title">LCD Confirmation</h3>
+            <p class="card-desc">
+              Inspect the 16&times;2 display as it confirms the ride deduction and shows the updated balance.
+            </p>
+          </div>
+
+          <div class="card primary-card">
+            <div class="card-badge">3</div>
+            <h3 class="card-title">Portal Sync</h3>
+            <p class="card-desc">
+              Watch the trip log and points counter update automatically on the student web dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid var(--border); position: relative; z-index: 5;">
+        <div style="font-weight: 700; color: var(--text); font-size: 1.05rem;">
+          Thank You, Esteemed Judges &bull; Group H SWEP 2026
+        </div>
+        <div style="font-size: 0.85rem; color: #fff;">
+          Faculty of Engineering and Technology &bull; University of Ilorin
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Deck Footer Controls -->
+  <footer class="deck-footer">
+    <div class="footer-left">
+      <button class="btn-nav btn-icon-only" id="fsBtn" title="Toggle Fullscreen (F)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+      <div class="slide-counter" id="slideCounter">01 / 11</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div class="keyboard-hint">
+        <span>Use</span>
+        <span class="key-badge">&larr;</span>
+        <span class="key-badge">&rarr;</span>
+        <span>or</span>
+        <span class="key-badge">Space</span>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-nav" id="prevBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Prev</span>
+        </button>
+        <button class="btn-nav primary" id="nextBtn">
+          <span>Next</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fsBtn = document.getElementById('fsBtn');
+    const slideCounter = document.getElementById('slideCounter');
+    const progressBar = document.getElementById('progressBar');
+
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function updateDeck() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentSlide);
+      });
+
+      const pad = (n) => String(n).padStart(2, '0');
+      slideCounter.textContent = `${pad(currentSlide + 1)} / ${pad(totalSlides)}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+      
+      const nextSpan = nextBtn.querySelector('span');
+      if (nextSpan) {
+        nextSpan.textContent = currentSlide === totalSlides - 1 ? 'End' : 'Next';
+      }
+    }
+
+    function goToNext() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateDeck();
+      }
+    }
+
+    function goToPrev() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateDeck();
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error('Fullscreen error:', err);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    nextBtn.addEventListener('click', goToNext);
+    prevBtn.addEventListener('click', goToPrev);
+    fsBtn.addEventListener('click', toggleFullScreen);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        goToNext();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        goToPrev();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key === 'Home') {
+        currentSlide = 0;
+        updateDeck();
+      } else if (e.key === 'End') {
+        currentSlide = totalSlides - 1;
+        updateDeck();
+      }
+    });
+
+    // Touch swipe support for tablets / touchscreens
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 50) {
+        goToNext();
+      } else if (touchEndX - touchStartX > 50) {
+        goToPrev();
+      }
+    }, { passive: true });
+
+    updateDeck();
+  </script>
+</body>
+</html>
